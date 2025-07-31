@@ -5,7 +5,7 @@
 <br>
 <h2>Credits:</h2>
 <div>
-  Created by PONTOGAMER
+  Original code Created by PONTOGAMER
   <br>
   Adapted to website by ATLAS
   <br>
