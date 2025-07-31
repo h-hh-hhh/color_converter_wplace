@@ -57,3 +57,16 @@ input[type="file"]:hover {
       flex-direction: row;
       flex-wrap: wrap;  
 }
+
+.toggle-color {
+      cursor: pointer;
+      width: auto;
+      border-radius: 20px;
+      font-size: 20px;
+      padding: 10px 10px 10px 10px;
+      margin: 5px;
+}
+
+.toggle-color.active {
+      border: 4px solid #00c3ff;
+}
