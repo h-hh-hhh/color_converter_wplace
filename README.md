@@ -3,9 +3,14 @@
   Convert the colors of your pixel art to the available in Wplace.
 </div>
 <br>
+<h2>Credits:</h2>
 <div>
-  Created by PONTOGAMERXD
+  Created by PONTOGAMER
   <br>
-  Adapted to JS by Sr. Patinho
+  Adapted to website by ATLAS
+  <br>
+  Honarable Mention: Kromck
+  <br>
+  Motivational helper and owner: PEPOAFONSO
 </div>
 
