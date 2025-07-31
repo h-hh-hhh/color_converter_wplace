@@ -2,9 +2,10 @@
 <div>
   Convert the colors of your pixel art to the available in Wplace.
 </div>
+<br>
 <div>
   Created by PONTOGAMERXD
   <br>
-  Adapted by Sr. Patinho
+  Adapted to JS by Sr. Patinho
 </div>
 
