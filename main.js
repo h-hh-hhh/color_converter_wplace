@@ -87,7 +87,7 @@ function showColorUsage(colorCounts) {
   padrao.forEach(([r, g, b], idx) => {
     const key = `${r},${g},${b}`;
     const count = colorCounts[key] || 0;
-    if (count === 0) return; // Only show used colors
+    if (count === 0) return;
     const colorItem = document.createElement('div');
     colorItem.style.display = 'flex';
     colorItem.style.alignItems = 'center';
@@ -100,7 +100,7 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    label.textContent = `#${idx + 1}: rgb(${r},${g},${b}) - ${count} px`;
+    label.textContent = `#${idx + 1}: ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
