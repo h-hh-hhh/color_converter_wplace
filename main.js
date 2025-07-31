@@ -100,9 +100,81 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    label.textContent = `#${idx + 1}: ${count} px`;
+    const colorNames = [
+      "Black", "Dark Gray", "Gray", "Medium Gray", "Light Gray", "White",
+      "Deep Red", "Red", "Light Red", "Dark Orange", "Orange", "Gold",
+      "Yellow", "Light Yellow", "Light Goldenrod", "Dark Olive", "Olive", "Light Olive",
+      "Dark Green", "Green", "Teal", "Light Teal", "Dark Cyan", "Cyan",
+      "Light Cyan", "Dark Blue", "Blue", "Dark Indigo", "Indigo", "Light Indigo",
+      "Dark Slate Blue", "Slate Blue", "Light Slate Blue", "Purple", "Light Purple",
+      "Dark Pink", "Pink", "Light Pink", "Dark Peach", "Peach", "Light Peach",
+      "Dark Brown", "Brown", "Light Brown", "Dark Tan", "Tan", "Light Tan",
+      "Dark Beige", "Beige", "Light Beige", "Dark Stone", "Stone", "Light Stone",
+      "Dark Slate", "Slate", "Light Slate"
+    ];
+    label.textContent = `${colorNames[idx]}: ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
   });
 }
+
+/* 
+Black: rgb(0, 0, 0)
+Dark Gray: rgb(60, 60, 60)
+Gray: rgb(120, 120, 120)
+Medium Gray: rgb(170, 170, 170)
+Light Gray: rgb(210, 210, 210)
+White: rgb(255, 255, 255)
+Deep Red: rgb(96, 0, 24)
+Red: rgb(237, 28, 36)
+Light Red: rgb(250, 128, 114)
+Dark Orange: rgb(228, 92, 26)
+Orange: rgb(255, 127, 39)
+Gold: rgb(246, 170, 9)
+Yellow: rgb(249, 221, 59)
+Light Yellow: rgb(255, 250, 188)
+Light Goldenrod: rgb(232, 212, 95)
+Dark Olive: rgb(74, 107, 58)
+Olive: rgb(90, 148, 74)
+Light Olive: rgb(132, 197, 115)
+Dark Green: rgb(14, 185, 104)
+Green: rgb(19, 230, 123)
+Teal: rgb(16, 174, 166)
+Light Teal: rgb(19, 225, 190)
+Dark Cyan: rgb(15, 121, 159)
+Cyan: rgb(96, 247, 242)
+Light Cyan: rgb(187, 250, 242)
+Dark Blue: rgb(40, 80, 158)
+Blue: rgb(64, 147, 228)
+Dark Indigo: rgb(77, 49, 184)
+Indigo: rgb(107, 80, 246)
+Light Indigo: rgb(153, 177, 251)
+Dark Slate Blue: rgb(74, 66, 132)
+Slate Blue: rgb(122, 113, 196)
+Light Slate Blue: rgb(181, 174, 241)
+Purple: rgb(170, 56, 185)
+Light Purple: rgb(224, 159, 249)
+Dark Pink: rgb(203, 0, 122)
+Pink: rgb(236, 31, 128)
+Light Pink: rgb(243, 141, 169)
+Dark Peach: rgb(155, 82, 73)
+Peach: rgb(209, 128, 120)
+Light Peach: rgb(250, 182, 164)
+Dark Brown: rgb(104, 70, 52)
+Brown: rgb(149, 104, 42)
+Light Brown: rgb(219, 164, 99)
+Dark Tan: rgb(123, 99, 82)
+Tan: rgb(156, 132, 107)
+Light Tan: rgb(214, 181, 148)
+Dark Beige: rgb(209, 128, 81)
+Beige: rgb(248, 178, 119)
+Light Beige: rgb(255, 197, 165)
+Dark Stone: rgb(109, 100, 63)
+Stone: rgb(148, 140, 107)
+Light Stone: rgb(205, 197, 158)
+Dark Slate: rgb(51, 57, 65)
+Slate: rgb(109, 117, 141)
+Light Slate: rgb(179, 185, 209)
+Transparent: rgba(0, 0, 0, 1)
+*/

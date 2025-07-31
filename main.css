@@ -10,14 +10,8 @@ body {
       flex-direction: column;
 }
 
-canvas {
-      border: 1px solid #ffffff;
-      margin-top: 10px;
-}
-
 input[type="file"] {
-      margin-bottom: 10px;
-      margin-top: 10px;
+      margin: 20px;
       display: inline-block;
       padding: 12px;
       background-color: #2d89ef;
@@ -27,7 +21,7 @@ input[type="file"] {
 }
 
 .button {
-      margin-top: 10px;
+      margin: 20px;
       display: inline-block;
       padding: 12px;
       background-color: #2d89ef;
