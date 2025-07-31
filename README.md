@@ -11,6 +11,6 @@
   <br>
   Honarable Mention: Kromck
   <br>
-  Motivational helper and owner: PEPOAFONSO
+  Motivational helper: PEPOAFONSO
 </div>
 
