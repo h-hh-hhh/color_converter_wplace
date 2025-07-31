@@ -83,20 +83,6 @@ function showColorUsage(colorCounts) {
   const colorListDiv = document.getElementById('color-list');
   if (!colorListDiv) return;
   colorListDiv.innerHTML = '';
-
-  const colorNames = [
-    "Black", "Dark Gray", "Gray", "Medium Gray", "Light Gray", "White",
-    "Deep Red", "Dark Red", "Red", "Light Red", "Dark Orange", "Orange", "Gold",
-    "Yellow", "Light Yellow", "Dark Goldenrod", "Goldenrod", "Light Goldenrod", "Dark Olive", "Olive", "Light Olive",
-    "Dark Green", "Green", "Teal", "Light Teal", "Dark Cyan", "Cyan",
-    "Light Cyan", "Dark Blue", "Blue", "Light Blue", "Dark Indigo", "Indigo", "Light Indigo",
-    "Dark Slate Blue", "Slate Blue", "Light Slate Blue", "Dark Purple", "Purple", "Light Purple",
-    "Dark Pink", "Pink", "Light Pink", "Dark Peach", "Peach", "Light Peach",
-    "Dark Brown", "Brown", "Light Brown", "Dark Tan", "Tan", "Light Tan",
-    "Dark Beige", "Beige", "Light Beige", "Dark Stone", "Stone", "Light Stone",
-    "Dark Slate", "Slate", "Light Slate"
-  ];
-
   padrao.forEach(([r, g, b], idx) => {
     const key = `${r},${g},${b}`;
     const count = colorCounts[key] || 0;
@@ -113,7 +99,7 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    label.textContent = `${colorNames[idx] || `rgb(${r},${g},${b})`}: ${count} px`;
+    label.textContent = `rgb(${r},${g},${b}): ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
@@ -181,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.toggle('active');
       updatePadraoFromActiveButtons();
       if (originalImage) {
-        applyScale(); // Reprocess on color toggle
+        applyScale(); // Reprocess using current scale and new colors
       }
     });
   });
