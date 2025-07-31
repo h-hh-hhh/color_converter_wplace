@@ -49,22 +49,26 @@ const padrao = [
       return cor;
     }
 
-    function processarImagem() {
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const [nr, ng, nb] = corMaisProxima(r, g, b);
-        data[i] = nr;
-        data[i + 1] = ng;
-        data[i + 2] = nb;
-      }
-      ctx.putImageData(imgData, 0, 0);
-      
-      downloadLink.href = canvas.toDataURL("image/png");
-      showImageInfo(canvas.width, canvas.height);
+function processarImagem() {
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  const colorCounts = {};
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const [nr, ng, nb] = corMaisProxima(r, g, b);
+    data[i] = nr;
+    data[i + 1] = ng;
+    data[i + 2] = nb;
+    const key = `${nr},${ng},${nb}`;
+    colorCounts[key] = (colorCounts[key] || 0) + 1;
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  downloadLink.href = canvas.toDataURL("image/png");
+  showImageInfo(canvas.width, canvas.height);
+  showColorUsage(colorCounts);
 }
 
 function showImageInfo(width, height) {
@@ -101,27 +105,4 @@ function showColorUsage(colorCounts) {
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
   });
-}
-
-// Modify processarImagem to count color usage and call showColorUsage
-function processarImagem() {
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-  const colorCounts = {};
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const [nr, ng, nb] = corMaisProxima(r, g, b);
-    data[i] = nr;
-    data[i + 1] = ng;
-    data[i + 2] = nb;
-    const key = `${nr},${ng},${nb}`;
-    colorCounts[key] = (colorCounts[key] || 0) + 1;
-  }
-  ctx.putImageData(imgData, 0, 0);
-
-  downloadLink.href = canvas.toDataURL("image/png");
-  showImageInfo(canvas.width, canvas.height);
-  showColorUsage(colorCounts);
 }
