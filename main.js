@@ -75,9 +75,9 @@ function showImageInfo(width, height) {
   const widthP = document.getElementById('width');
   const heightP = document.getElementById('height');
   const areaP = document.getElementById('area');
-  if (widthP) widthP.textContent = `Width: ${width}px`;
-  if (heightP) heightP.textContent = `Height: ${height}px`;
-  if (areaP) areaP.textContent = `Area: ${width * height}px`;
+  if (widthP) widthP.textContent = `Width: ${width} px`;
+  if (heightP) heightP.textContent = `Height: ${height} px`;
+  if (areaP) areaP.textContent = `Area: ${width * height} px`;
 }
 
 function showColorUsage(colorCounts) {
