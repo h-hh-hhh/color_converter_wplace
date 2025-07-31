@@ -9,7 +9,7 @@
   <br>
   Adapted to website by ATLAS
   <br>
-  Honarable Mention: Kromck
+  Honarable Mention: kromck
   <br>
   Motivational helper: PEPOAFONSO
 </div>
