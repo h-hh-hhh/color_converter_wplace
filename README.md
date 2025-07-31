@@ -9,7 +9,7 @@
   <br>
   Adapted to website by ATLAS
   <br>
-  Git manager and marketer: PEPOAFONSO
+  Github manager and marketer: PEPOAFONSO
   <br>
   Motivational helper: kromck
 </div>
