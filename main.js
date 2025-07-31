@@ -62,6 +62,6 @@ const padrao = [
         data[i + 2] = nb;
       }
       ctx.putImageData(imgData, 0, 0);
-      // Atualiza o link de download
+      
       downloadLink.href = canvas.toDataURL("image/png");
 }
