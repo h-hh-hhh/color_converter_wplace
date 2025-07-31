@@ -9,8 +9,8 @@
   <br>
   Adapted to website by ATLAS
   <br>
-  Honarable Mention: kromck
+  Git manager and marketer: PEPOAFONSO
   <br>
-  Motivational helper: PEPOAFONSO
+  Motivational helper: kromck
 </div>
 
