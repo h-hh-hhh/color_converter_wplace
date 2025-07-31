@@ -12,7 +12,7 @@
   Github manager and marketer: PEPOAFONSO
   <br>
   Motivational helper: kromck
-  <br>
-  You lost the Game
 </div>
+  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>  <br>
+You lost the Game
 
