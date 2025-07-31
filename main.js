@@ -178,3 +178,56 @@ Slate: rgb(109, 117, 141)
 Light Slate: rgb(179, 185, 209)
 Transparent: rgba(0, 0, 0, 1)
 */
+
+const scaleRange = document.getElementById('scaleRange');
+    const scaleValue = document.getElementById('scaleValue');
+    scaleRange.addEventListener('input', function() {
+      scaleValue.textContent = parseFloat(scaleRange.value).toFixed(2) + 'x';
+}); 
+
+let originalImage = null;
+
+function applyScale() {
+  const scale = parseFloat(scaleRange.value);
+  if (!originalImage) return;
+
+  const newWidth = Math.round(originalImage.width * scale);
+  const newHeight = Math.round(originalImage.height * scale);
+
+  canvas.width = newWidth;
+  canvas.height = newHeight;
+  ctx.clearRect(0, 0, newWidth, newHeight);
+  ctx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height, 0, 0, newWidth, newHeight);
+
+  processarImagem();
+}
+
+upload.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const img = new Image();
+    img.onload = () => {
+      originalImage = img;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      processarImagem();
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+scaleRange.addEventListener('change', applyScale);
+
+upload.addEventListener('change', () => {
+  scaleRange.value = 1.0;
+  scaleValue.textContent = '1.00x';
+});
+
+window.addEventListener('beforeunload', () => {
+  scaleRange.value = 1.0;
+  scaleValue.textContent = '1.00x';
+});

@@ -8,16 +8,26 @@
 </head>
 <body>
 
-  <h2>Color Palette Converter</h2>
+  <h2>Wplace Color Converter</h2>
   <input type="file" id="upload" accept="image/*"><br>
+  
+  <canvas id="canvas"></canvas><br>
+  
   <p id="width"></p>
   <p id="height"></p>
   <p id="area"></p>
-  <canvas id="canvas"></canvas><br>
+
+  <div class="scroll-bar">
+    <label for="scaleRange">Scale: </label>
+    <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
+    <span id="scaleValue">1.00x</span>
+  </div><br>
+
   <a id="download" class="button" href="#" download="converted_colors.png">Download Image</a>
-  <script src="main.js"></script><br>
   <a class="button" onclick="window.location.href='https://wplace.live/'">Go to Wplace</a>
   <div id="color-list"></div>
   
 </body>
 </html>
+
+<script src="main.js"></script>
