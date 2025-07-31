@@ -1,5 +1,6 @@
 body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 20px;
       padding: 20px;
       background-color: #111;
       color: #ffffff
@@ -12,14 +13,28 @@ canvas {
 
 input[type="file"] {
       margin-bottom: 10px;
-}
-
-#download {
       margin-top: 10px;
       display: inline-block;
-      padding: 8px 12px;
+      padding: 12px;
       background-color: #2d89ef;
       color: white;
       text-decoration: none;
       border-radius: 5px;
+}
+
+.button {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 12px;
+      background-color: #2d89ef;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+}
+
+.button:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+      background-color: #1c62c4;
+      transition: transform 0.2s;
 }
