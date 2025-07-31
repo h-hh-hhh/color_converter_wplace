@@ -30,43 +30,24 @@ function updatePadraoFromActiveButtons() {
 
 updatePadraoFromActiveButtons();
 
-    const upload = document.getElementById('upload');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const downloadLink = document.getElementById('download');
+const upload = document.getElementById('upload');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const downloadLink = document.getElementById('download');
 
-    upload.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = evt => {
-        const img = new Image();
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          processarImagem();
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function corMaisProxima(r, g, b) {
-      let menorDist = Infinity;
-      let cor = [0, 0, 0];
-      for (let i = 0; i < padrao.length; i++) {
-        const pr = padrao[i][0];
-        const pg = padrao[i][1];
-        const pb = padrao[i][2];
-        const dist = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2;
-        if (dist < menorDist) {
-          menorDist = dist;
-          cor = [pr, pg, pb];
-        }
-      }
-      return cor;
+function corMaisProxima(r, g, b) {
+  let menorDist = Infinity;
+  let cor = [0, 0, 0];
+  for (let i = 0; i < padrao.length; i++) {
+    const [pr, pg, pb] = padrao[i];
+    const dist = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2;
+    if (dist < menorDist) {
+      menorDist = dist;
+      cor = [pr, pg, pb];
     }
+  }
+  return cor;
+}
 
 function processarImagem() {
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -84,7 +65,6 @@ function processarImagem() {
     colorCounts[key] = (colorCounts[key] || 0) + 1;
   }
   ctx.putImageData(imgData, 0, 0);
-
   downloadLink.href = canvas.toDataURL("image/png");
   showImageInfo(canvas.width, canvas.height);
   showColorUsage(colorCounts);
@@ -103,6 +83,20 @@ function showColorUsage(colorCounts) {
   const colorListDiv = document.getElementById('color-list');
   if (!colorListDiv) return;
   colorListDiv.innerHTML = '';
+
+  const colorNames = [
+    "Black", "Dark Gray", "Gray", "Medium Gray", "Light Gray", "White",
+    "Deep Red", "Dark Red", "Red", "Light Red", "Dark Orange", "Orange", "Gold",
+    "Yellow", "Light Yellow", "Dark Goldenrod", "Goldenrod", "Light Goldenrod", "Dark Olive", "Olive", "Light Olive",
+    "Dark Green", "Green", "Teal", "Light Teal", "Dark Cyan", "Cyan",
+    "Light Cyan", "Dark Blue", "Blue", "Light Blue", "Dark Indigo", "Indigo", "Light Indigo",
+    "Dark Slate Blue", "Slate Blue", "Light Slate Blue", "Dark Purple", "Purple", "Light Purple",
+    "Dark Pink", "Pink", "Light Pink", "Dark Peach", "Peach", "Light Peach",
+    "Dark Brown", "Brown", "Light Brown", "Dark Tan", "Tan", "Light Tan",
+    "Dark Beige", "Beige", "Light Beige", "Dark Stone", "Stone", "Light Stone",
+    "Dark Slate", "Slate", "Light Slate"
+  ];
+
   padrao.forEach(([r, g, b], idx) => {
     const key = `${r},${g},${b}`;
     const count = colorCounts[key] || 0;
@@ -119,19 +113,7 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    const colorNames = [
-      "Black", "Dark Gray", "Gray", "Medium Gray", "Light Gray", "White",
-      "Deep Red", "Dark Red", "Red", "Light Red", "Dark Orange", "Orange", "Gold",
-      "Yellow", "Light Yellow", "Dark Goldenrod", "Goldenrod", "Light Goldenrod", "Dark Olive", "Olive", "Light Olive",
-      "Dark Green", "Green", "Teal", "Light Teal", "Dark Cyan", "Cyan",
-      "Light Cyan", "Dark Blue", "Blue", "Light Blue", "Dark Indigo", "Indigo", "Light Indigo",
-      "Dark Slate Blue", "Slate Blue", "Light Slate Blue", "Dark Purple", "Purple", "Light Purple",
-      "Dark Pink", "Pink", "Light Pink", "Dark Peach", "Peach", "Light Peach",
-      "Dark Brown", "Brown", "Light Brown", "Dark Tan", "Tan", "Light Tan",
-      "Dark Beige", "Beige", "Light Beige", "Dark Stone", "Stone", "Light Stone",
-      "Dark Slate", "Slate", "Light Slate"
-    ];
-    label.textContent = `${colorNames[idx]}: ${count} px`;
+    label.textContent = `${colorNames[idx] || `rgb(${r},${g},${b})`}: ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
@@ -139,10 +121,10 @@ function showColorUsage(colorCounts) {
 }
 
 const scaleRange = document.getElementById('scaleRange');
-    const scaleValue = document.getElementById('scaleValue');
-    scaleRange.addEventListener('input', function() {
-      scaleValue.textContent = parseFloat(scaleRange.value).toFixed(2) + 'x';
-}); 
+const scaleValue = document.getElementById('scaleValue');
+scaleRange.addEventListener('input', function () {
+  scaleValue.textContent = parseFloat(scaleRange.value).toFixed(2) + 'x';
+});
 
 let originalImage = null;
 
@@ -191,15 +173,16 @@ window.addEventListener('beforeunload', () => {
   scaleValue.textContent = '1.00x';
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Update padrao initially from active buttons
+document.addEventListener('DOMContentLoaded', function () {
   updatePadraoFromActiveButtons();
 
   document.querySelectorAll('#colors .toggle-color').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       btn.classList.toggle('active');
-      // Update padrao whenever a button is toggled
       updatePadraoFromActiveButtons();
+      if (originalImage) {
+        applyScale(); // Reprocess on color toggle
+      }
     });
   });
 });
