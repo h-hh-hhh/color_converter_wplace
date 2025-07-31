@@ -1,6 +1,6 @@
 <h1>WPlace Pixel Art Color Converter</h1>
 <div>
-  Convert the colors of your pixel art to the available in Wplace.
+  Convert the colors of your image to the available in Wplace.
 </div>
 <br>
 <h2>Credits:</h2>
