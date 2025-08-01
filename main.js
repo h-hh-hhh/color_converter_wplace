@@ -172,11 +172,25 @@ function showColorUsage(colorCounts) {
 
 const scaleRange = document.getElementById('scaleRange');
 const scaleValue = document.getElementById('scaleValue');
+const zoomRange = document.getElementById('zoomRange');
+const zoomValue = document.getElementById('zoomValue');
+
 scaleRange.addEventListener('input', function () {
   scaleValue.textContent = parseFloat(scaleRange.value).toFixed(2) + 'x';
 });
 
+zoomRange.addEventListener('input', function () {
+  zoomValue.textContent = parseFloat(zoomRange.value).toFixed(2) + 'x';
+  applyPreview();
+});
+
+
+
 let originalImage = null;
+let scaledCanvas = null;
+let scaledCtx = null;
+let processedCanvas = null;
+let processedCtx = null;
 
 function applyScale() {
   const scale = parseFloat(scaleRange.value);
@@ -185,13 +199,97 @@ function applyScale() {
   const newWidth = Math.round(originalImage.width * scale);
   const newHeight = Math.round(originalImage.height * scale);
 
+  // Create or resize offscreen canvas for scaled image
+  if (!scaledCanvas) {
+    scaledCanvas = document.createElement('canvas');
+    scaledCtx = scaledCanvas.getContext('2d');
+  }
+  scaledCanvas.width = newWidth;
+  scaledCanvas.height = newHeight;
+
+  // Draw scaled image to offscreen canvas
+  scaledCtx.clearRect(0, 0, newWidth, newHeight);
+  scaledCtx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height, 0, 0, newWidth, newHeight);
+
+  // Draw scaled image to main canvas
   canvas.width = newWidth;
   canvas.height = newHeight;
   ctx.clearRect(0, 0, newWidth, newHeight);
-  ctx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height, 0, 0, newWidth, newHeight);
+  ctx.drawImage(scaledCanvas, 0, 0);
 
   processarImagem();
 }
+
+function processarImagem() {
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  const colorCounts = {};
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const [nr, ng, nb] = corMaisProxima(r, g, b);
+    data[i] = nr;
+    data[i + 1] = ng;
+    data[i + 2] = nb;
+    const key = `${nr},${ng},${nb}`;
+    colorCounts[key] = (colorCounts[key] || 0) + 1;
+  }
+  ctx.putImageData(imgData, 0, 0);
+  downloadLink.href = canvas.toDataURL("image/png");
+  showImageInfo(canvas.width, canvas.height);
+  showColorUsage(colorCounts);
+
+  // Save processed image to offscreen canvas for zoom preview
+  if (!processedCanvas) {
+    processedCanvas = document.createElement('canvas');
+    processedCtx = processedCanvas.getContext('2d');
+  }
+  processedCanvas.width = canvas.width;
+  processedCanvas.height = canvas.height;
+  processedCtx.putImageData(imgData, 0, 0);
+}
+
+function applyPreview() {
+  const zoom = parseFloat(zoomRange.value);
+  if (!processedCanvas) return;
+
+  const previewWidth = Math.round(processedCanvas.width * zoom);
+  const previewHeight = Math.round(processedCanvas.height * zoom);
+
+  // Resize main canvas for zoom preview
+  canvas.width = previewWidth;
+  canvas.height = previewHeight;
+  ctx.clearRect(0, 0, previewWidth, previewHeight);
+
+  // Disable image smoothing for nearest neighbor scaling
+  ctx.imageSmoothingEnabled = false;
+
+  // Draw processed image with zoom applied using nearest neighbor
+  ctx.drawImage(processedCanvas, 0, 0, processedCanvas.width, processedCanvas.height, 0, 0, previewWidth, previewHeight);
+
+  // Re-enable image smoothing for other operations if needed
+  ctx.imageSmoothingEnabled = true;
+}
+
+scaleRange.addEventListener('change', function () {
+  applyScale();
+  applyPreview();
+});
+
+upload.addEventListener('change', () => {
+  scaleRange.value = 1.0;
+  scaleValue.textContent = '1.00x';
+  zoomRange.value = 1.0;
+  zoomValue.textContent = '1.00x';
+});
+
+window.addEventListener('beforeunload', () => {
+  scaleRange.value = 1.0;
+  scaleValue.textContent = '1.00x';
+  zoomRange.value = 1.0;
+  zoomValue.textContent = '1.00x';
+});
 
 upload.addEventListener('change', e => {
   const file = e.target.files[0];
@@ -236,3 +334,4 @@ document.addEventListener('DOMContentLoaded', function () {
             });
           });
         });
+
