@@ -78,6 +78,7 @@ let padrao = [];
 
 function updatePadraoFromActiveButtons() {
   padrao = [];
+  let colorActiveSave = [];
   const activeButtons = document.querySelectorAll('#colors .toggle-color.active');
   activeButtons.forEach(btn => {
     const bg = window.getComputedStyle(btn).backgroundColor;
@@ -88,10 +89,10 @@ function updatePadraoFromActiveButtons() {
       const b = parseInt(rgbMatch[3], 10);
       padrao.push([r, g, b]);
     }
+    colorActiveSave.push(btn.id);
   });
+  localStorage.setItem('activeColors', JSON.stringify(colorActiveSave));
 }
-
-updatePadraoFromActiveButtons();
 
 const upload = document.getElementById('upload');
 const canvas = document.getElementById('canvas');
@@ -152,7 +153,16 @@ function corMaisProxima(r, g, b) {
   let cor = [0, 0, 0];
   for (let i = 0; i < padrao.length; i++) {
     const [pr, pg, pb] = padrao[i];
-    const dist = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2;
+    //const dist = Math.sqrt((pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2);
+    //https://www.compuphase.com/cmetric.htm#:~:text=A%20low%2Dcost%20approximation
+    const rmean = (pr + r) / 2;
+    const rdiff = pr - r;
+    const gdiff = pg - g;
+    const bdiff = pb - b;
+    const x = (512 + rmean) * rdiff * rdiff >> 8;
+    const y = 4 * gdiff * gdiff;
+    const z = (767 - rmean) * bdiff * bdiff >> 8;
+    const dist = Math.sqrt(x + y + z);
     if (dist < menorDist) {
       menorDist = dist;
       cor = [pr, pg, pb];
@@ -280,10 +290,12 @@ function processarImagem() {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
+    const a = data[i + 3];
     const [nr, ng, nb] = corMaisProxima(r, g, b);
     data[i] = nr;
     data[i + 1] = ng;
     data[i + 2] = nb;
+    data[i + 3] = a === 0 ? 0 : 255;
     const key = `${nr},${ng},${nb}`;
     colorCounts[key] = (colorCounts[key] || 0) + 1;
   }
@@ -367,14 +379,23 @@ window.addEventListener('beforeunload', () => {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+  const buttons = document.querySelectorAll('#colors .toggle-color');
+  const colorActiveSave = JSON.parse(localStorage.getItem('activeColors')) || [];
+  colorActiveSave.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.classList.add('active');
+    }
+  });
+
   updatePadraoFromActiveButtons();
 
-  document.querySelectorAll('#colors .toggle-color').forEach(btn => {
+  buttons.forEach(btn => {
     btn.addEventListener('click', function () {
       btn.classList.toggle('active');
       updatePadraoFromActiveButtons();
       if (originalImage) {
-        applyScale(); 
+        applyScale();
         applyPreview();
       }
     });
