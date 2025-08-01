@@ -18,6 +18,10 @@ input[type="file"] {
       color: white;
       text-decoration: none;
       border-radius: 5px;
+      font-size: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 }
 
 input[type="file"]:hover {
@@ -82,4 +86,20 @@ input[type="file"]:hover {
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
+      width: 900px;
+}
+
+.row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+}
+
+#color-list {
+      margin-top: 20px;
+}
+
+#width, #height, #area {
+      margin: 12px;
+      font-size: 20px;
 }

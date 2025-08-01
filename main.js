@@ -130,6 +130,8 @@ function processarImagem() {
   downloadLink.href = canvas.toDataURL("image/png");
   showImageInfo(canvas.width, canvas.height);
   showColorUsage(colorCounts);
+  const totalPixels = canvas.width * canvas.height;
+  document.getElementById('pixels_amount').textContent = "Pixels Amount: ${totalPixels} px";
 }
 
 function showImageInfo(width, height) {
@@ -161,12 +163,12 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    // Use color name if available, else fallback to rgb
     const colorName = colorNames[key] || `rgb(${r},${g},${b})`;
     label.textContent = `${colorName}: ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
+
   });
 }
 
@@ -184,8 +186,6 @@ zoomRange.addEventListener('input', function () {
   applyPreview();
 });
 
-
-
 let originalImage = null;
 let scaledCanvas = null;
 let scaledCtx = null;
@@ -199,7 +199,6 @@ function applyScale() {
   const newWidth = Math.round(originalImage.width * scale);
   const newHeight = Math.round(originalImage.height * scale);
 
-  // Create or resize offscreen canvas for scaled image
   if (!scaledCanvas) {
     scaledCanvas = document.createElement('canvas');
     scaledCtx = scaledCanvas.getContext('2d');
@@ -207,11 +206,9 @@ function applyScale() {
   scaledCanvas.width = newWidth;
   scaledCanvas.height = newHeight;
 
-  // Draw scaled image to offscreen canvas
   scaledCtx.clearRect(0, 0, newWidth, newHeight);
   scaledCtx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height, 0, 0, newWidth, newHeight);
 
-  // Draw scaled image to main canvas
   canvas.width = newWidth;
   canvas.height = newHeight;
   ctx.clearRect(0, 0, newWidth, newHeight);
@@ -240,7 +237,6 @@ function processarImagem() {
   showImageInfo(canvas.width, canvas.height);
   showColorUsage(colorCounts);
 
-  // Save processed image to offscreen canvas for zoom preview
   if (!processedCanvas) {
     processedCanvas = document.createElement('canvas');
     processedCtx = processedCanvas.getContext('2d');
@@ -257,18 +253,12 @@ function applyPreview() {
   const previewWidth = Math.round(processedCanvas.width * zoom);
   const previewHeight = Math.round(processedCanvas.height * zoom);
 
-  // Resize main canvas for zoom preview
   canvas.width = previewWidth;
   canvas.height = previewHeight;
   ctx.clearRect(0, 0, previewWidth, previewHeight);
 
-  // Disable image smoothing for nearest neighbor scaling
   ctx.imageSmoothingEnabled = false;
-
-  // Draw processed image with zoom applied using nearest neighbor
   ctx.drawImage(processedCanvas, 0, 0, processedCanvas.width, processedCanvas.height, 0, 0, previewWidth, previewHeight);
-
-  // Re-enable image smoothing for other operations if needed
   ctx.imageSmoothingEnabled = true;
 }
 
@@ -329,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.toggle('active');
       updatePadraoFromActiveButtons();
       if (originalImage) {
-                applyScale(); // Reprocess using current scale and new colors
+                applyScale(); 
               }
             });
           });

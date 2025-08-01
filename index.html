@@ -19,26 +19,27 @@
   <input type="file" id="upload" accept="image/*"><br>
   
   <canvas id="canvas"></canvas><br>
-  <table>
-    <tr>
-      <td>
-        <p id="width"></p>
-        <p id="height"></p>
-        <p id="area"></p>
+        <p class="image-info" id="width"></p>
+        <p class="image-info" id="height"></p>
+        <p class="image-info" id="area"></p>
+        
         <div class="scroll-bar">
           <label for="scaleRange">Scale: </label>
           <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
           <span id="scaleValue">1.00x</span>
         </div><br>
+
         <div class="scroll-bar">
           <label for="zoomRange">Zoom: </label>
           <input type="range" id="zoomRange" min="0.01" max="5" step="0.01" value="1">
           <span id="zoomValue">1.00x</span>
         </div><br>
-        <a id="download" class="button" href="#" download="converted_colors.png">Download Image</a>
-        <a class="button" target="_blank" href="https://wplace.live/">Go to Wplace</a>
-      </td>
-      <td width="900px">
+
+        <div class="row">
+          <a id="download" class="button" href="#" download="converted_colors.png">Download Image</a>
+          <a class="button" target="_blank" href="https://wplace.live/">Go to Wplace</a>
+        </div>
+
         <p>Free Colors:</p>
         <div id="colors">
           <button class="toggle-color active" style="background: rgb(0,0,0); color: #fff;" title="Black: rgb(0, 0, 0)">Black</button>
@@ -107,12 +108,9 @@
             <button class="toggle-color" style="background: rgb(51,57,65); color: #fff;" title="Dark Slate: rgb(51, 57, 65)">Dark Slate</button>
             <button class="toggle-color" style="background: rgb(109,117,141);" title="Slate: rgb(109, 117, 141)">Slate</button>
             <button class="toggle-color" style="background: rgb(179,185,209);" title="Light Slate: rgb(179, 185, 209)">Light Slate</button>
-            </div>
-        </td>
-      </tr>
-    </table>
-    <div id="color-list"></div>
-    
+          </div>
+        <p id="pixels_amount"></p>
+        <div id="color-list"></div>
   </div>
 </body>
 </html>
