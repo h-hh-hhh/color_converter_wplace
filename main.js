@@ -19,6 +19,7 @@ const colorNames = {
   "170,170,170": "Medium Gray",
   "210,210,210": "Light Gray",
   "255,255,255": "White",
+  "165,14,30": "Dark Red",
   "96,0,24": "Deep Red",
   "237,28,36": "Red",
   "250,128,114": "Light Red",
@@ -96,6 +97,28 @@ const upload = document.getElementById('upload');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const downloadLink = document.getElementById('download');
+
+window.addEventListener('paste', function (event) {
+  if (!event.clipboardData) return;
+  const items = event.clipboardData.items;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      const file = items[i].getAsFile();
+      if (file) {
+        const uploadInput = document.getElementById('upload');
+        // Create a DataTransfer to simulate file input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        uploadInput.files = dt.files;
+        // Trigger change event to load image
+        const changeEvent = new Event('change', { bubbles: true });
+        uploadInput.dispatchEvent(changeEvent);
+      }
+      break;
+    }
+  }
+});
+
 
 function corMaisProxima(r, g, b) {
   let menorDist = Infinity;
@@ -319,9 +342,40 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.toggle('active');
       updatePadraoFromActiveButtons();
       if (originalImage) {
-                applyScale(); 
-              }
-            });
-          });
-        });
+        applyScale(); 
+        applyPreview(); // <-- Add this line
+      }
+    });
+  });
+});
 
+
+function showCustomToast(message) {
+  const toastBtn = document.getElementById('clipboard');
+  if (!toastBtn) return;
+  const originalText = toastBtn.textContent;
+  toastBtn.textContent = message;
+  toastBtn.style.background = '#D60270';
+  toastBtn.style.color = '#fff';
+  setTimeout(() => {
+    toastBtn.textContent = originalText;
+    toastBtn.style.background = '';
+    toastBtn.style.color = '';
+  }, 1800);
+}
+
+document.getElementById('clipboard').addEventListener('click', async function () {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return;
+
+  canvas.toBlob(async (blob) => {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      showCustomToast('Image copied to clipboard!');
+    } catch (err) {
+      showCustomToast('Failed to copy image.');
+    }
+  }, 'image/png');
+});
