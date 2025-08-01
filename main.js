@@ -16,62 +16,66 @@ const colorNames = {
   "0,0,0": "Black",
   "60,60,60": "Dark Gray",
   "120,120,120": "Gray",
-  "170,170,170": "Medium Gray",
   "210,210,210": "Light Gray",
   "255,255,255": "White",
-  "165,14,30": "Dark Red",
   "96,0,24": "Deep Red",
   "237,28,36": "Red",
-  "250,128,114": "Light Red",
-  "228,92,26": "Dark Orange",
   "255,127,39": "Orange",
   "246,170,9": "Gold",
   "249,221,59": "Yellow",
   "255,250,188": "Light Yellow",
-  "232,212,95": "Light Goldenrod",
-  "74,107,58": "Dark Olive",
-  "90,148,74": "Olive",
-  "132,197,115": "Light Olive",
   "14,185,104": "Dark Green",
   "19,230,123": "Green",
   "135,255,94": "Light Green",
   "12,129,110": "Dark Teal",
   "16,174,166": "Teal",
   "19,225,190": "Light Teal",
-  "15,121,159": "Dark Cyan",
   "96,247,242": "Cyan",
-  "187,250,242": "Light Cyan",
   "40,80,158": "Dark Blue",
   "64,147,228": "Blue",
-  "77,49,184": "Dark Indigo",
   "107,80,246": "Indigo",
   "153,177,251": "Light Indigo",
-  "74,66,132": "Dark Slate Blue",
-  "122,113,196": "Slate Blue",
-  "181,174,241": "Light Slate Blue",
+  "120,12,153": "Dark Purple",
   "170,56,185": "Purple",
   "224,159,249": "Light Purple",
   "203,0,122": "Dark Pink",
   "236,31,128": "Pink",
   "243,141,169": "Light Pink",
+  "104,70,52": "Dark Brown",
+  "149,104,42": "Brown",
+  "248,178,119": "Beige",
+  "170,170,170": "Medium Gray",
+  "165,14,30": "Dark Red",
+  "250,128,114": "Light Red",
+  "228,92,26": "Dark Orange",
+  "156,132,49": "Dark Goldenrod",
+  "197,173,49": "Goldenrod",
+  "232,212,95": "Light Goldenrod",
+  "74,107,58": "Dark Olive",
+  "90,148,74": "Olive",
+  "132,197,115": "Light Olive",
+  "15,121,159": "Dark Cyan",
+  "187,250,242": "Light Cyan",
+  "125,199,255": "Light Blue",
+  "77,49,184": "Dark Indigo",
+  "74,66,132": "Dark Slate Blue",
+  "122,113,196": "Slate Blue",
+  "181,174,241": "Light Slate Blue",
   "155,82,73": "Dark Peach",
   "209,128,120": "Peach",
   "250,182,164": "Light Peach",
-  "104,70,52": "Dark Brown",
-  "149,104,42": "Brown",
   "219,164,99": "Light Brown",
   "123,99,82": "Dark Tan",
   "156,132,107": "Tan",
   "214,181,148": "Light Tan",
   "209,128,81": "Dark Beige",
-  "248,178,119": "Beige",
   "255,197,165": "Light Beige",
   "109,100,63": "Dark Stone",
   "148,140,107": "Stone",
   "205,197,158": "Light Stone",
   "51,57,65": "Dark Slate",
   "109,117,141": "Slate",
-  "179,185,209": "Light Slate"
+  "179,185,209": "Light Slate",
 };
 
 let padrao = [];
@@ -188,10 +192,17 @@ function processarImagem() {
   }
   ctx.putImageData(imgData, 0, 0);
   downloadLink.href = canvas.toDataURL("image/png");
+  downloadLink.download = `converted_${fileName}`;
   showImageInfo(canvas.width, canvas.height);
   showColorUsage(colorCounts);
-  const totalPixels = canvas.width * canvas.height;
-  document.getElementById('pixels_amount').textContent = "Pixels Amount: ${totalPixels} px";
+
+  if (!processedCanvas) {
+    processedCanvas = document.createElement('canvas');
+    processedCtx = processedCanvas.getContext('2d');
+  }
+  processedCanvas.width = canvas.width;
+  processedCanvas.height = canvas.height;
+  processedCtx.putImageData(imgData, 0, 0);
 }
 
 function showImageInfo(width, height) {
@@ -209,13 +220,19 @@ function showImageInfo(width, height) {
 }
 
 function showColorUsage(colorCounts) {
-  const colorListDiv = document.getElementById('color-list');
-  if (!colorListDiv) return;
-  colorListDiv.innerHTML = '';
-  padrao.forEach(([r, g, b], idx) => {
+  let colorList = [];
+  padrao.forEach(([r, g, b]) => {
     const key = `${r},${g},${b}`;
     const count = colorCounts[key] || 0;
     if (count === 0) return;
+    colorList.push({ r, g, b, count, name: colorNames[key] });
+  });
+  colorList.sort((a, b) => b.count - a.count);
+
+  const colorListDiv = document.getElementById('color-list');
+  if (!colorListDiv) return;
+  colorListDiv.innerHTML = '';
+  colorList.forEach(({ r, g, b, count, name }) => {
     const colorItem = document.createElement('div');
     colorItem.style.display = 'flex';
     colorItem.style.alignItems = 'center';
@@ -228,12 +245,11 @@ function showColorUsage(colorCounts) {
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
     const label = document.createElement('span');
-    const colorName = colorNames[key] || `rgb(${r},${g},${b})`;
+    const colorName = name || `rgb(${r}, ${g}, ${b})`;
     label.textContent = `${colorName}: ${count} px`;
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
-
   });
 }
 
@@ -280,37 +296,6 @@ function applyScale() {
   ctx.drawImage(scaledCanvas, 0, 0);
 
   processarImagem();
-}
-
-function processarImagem() {
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imgData.data;
-  const colorCounts = {};
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const a = data[i + 3];
-    const [nr, ng, nb] = corMaisProxima(r, g, b);
-    data[i] = nr;
-    data[i + 1] = ng;
-    data[i + 2] = nb;
-    data[i + 3] = a === 0 ? 0 : 255;
-    const key = `${nr},${ng},${nb}`;
-    colorCounts[key] = (colorCounts[key] || 0) + 1;
-  }
-  ctx.putImageData(imgData, 0, 0);
-  downloadLink.href = canvas.toDataURL("image/png");
-  showImageInfo(canvas.width, canvas.height);
-  showColorUsage(colorCounts);
-
-  if (!processedCanvas) {
-    processedCanvas = document.createElement('canvas');
-    processedCtx = processedCanvas.getContext('2d');
-  }
-  processedCanvas.width = canvas.width;
-  processedCanvas.height = canvas.height;
-  processedCtx.putImageData(imgData, 0, 0);
 }
 
 function applyPreview() {
@@ -652,10 +637,13 @@ document.addEventListener("DOMContentLoaded", () => {
   applyTranslations(savedLang);
 });
 
+let fileName = "";
+
 // When loading an image, update the global size variables
 upload.addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  fileName = file.name;
   const reader = new FileReader();
   reader.onload = evt => {
     const img = new Image();
