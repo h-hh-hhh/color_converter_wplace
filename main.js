@@ -73,59 +73,6 @@ const colorNames = {
   "179,185,209": "Light Slate"
 };
 
-// Constantes PQ
-const m1 = 2610 / 16384;
-const m2 = 2523 / 32;
-const c1 = 3424 / 4096;
-const c2 = 2413 / 128;
-const c3 = 2392 / 128;
-
-// Matrizes
-const M_RGB_to_LMS = [
-  [1688 / 4096, 2146 / 4096, 262 / 4096],
-  [683 / 4096, 2951 / 4096, 462 / 4096],
-  [99 / 4096, 309 / 4096, 3688 / 4096]
-];
-
-const M_LMS_to_ICtCp = [
-  [0.5, 0.5, 0],
-  [1.6137, -3.3234, 1.7097],
-  [4.3781, -4.2455, -0.1326]
-];
-
-// ---------- Função PQ encode ----------
-function pqEncode(L) {
-  const L_safe = L.map(v => Math.max(v, 1e-5)); // evita log(0)
-  return L_safe.map(v => {
-    const num = c1 + c2 * Math.pow(v, m1);
-    const den = 1 + c3 * Math.pow(v, m1);
-    return Math.pow(num / den, m2);
-  });
-}
-
-// ---------- Produto de matriz ----------
-function dotProduct3x3(matrix, vector) {
-  return matrix.map(row =>
-    row[0] * vector[0] + row[1] * vector[1] + row[2] * vector[2]
-  );
-}
-
-// ---------- Função principal: RGB → ICtCp ----------
-function rgbToICtCp(rgb) {
-  // Normalizar RGB [0–255] → [0–1]
-  const rgbNorm = rgb.map(v => v / 255);
-
-  // RGB → LMS
-  const LMS = dotProduct3x3(M_RGB_to_LMS, rgbNorm);
-
-  // Aplicar PQ EOTF
-  const LMS_pq = pqEncode(LMS);
-
-  // LMS(PQ) → ICtCp
-  const ICtCp = dotProduct3x3(M_LMS_to_ICtCp, LMS_pq);
-
-  return ICtCp;
-}
 let padrao = [];
 
 function updatePadraoFromActiveButtons() {
@@ -142,17 +89,7 @@ function updatePadraoFromActiveButtons() {
     }
   });
 }
-let simples = false;
 
-// Atualiza quando o checkbox mudar
-const checkbox = document.getElementById("simplesCheckbox");
-if (checkbox) {
-  checkbox.addEventListener("change", () => {
-    simples = checkbox.checked;
-    console.log("Modo simples:", simples);
-    // Aqui você pode chamar alguma função, se quiser aplicar mudanças imediatas
-  });
-}
 updatePadraoFromActiveButtons();
 
 const upload = document.getElementById('upload');
@@ -160,26 +97,15 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const downloadLink = document.getElementById('download');
 
-function corMaisProxima(r, g, b, simples) {
+function corMaisProxima(r, g, b) {
   let menorDist = Infinity;
   let cor = [0, 0, 0];
   for (let i = 0; i < padrao.length; i++) {
-    
-    if (simples === true){
-        const [pr, pg, pb] = padrao[i];
-        const dist1 = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2;
-        if (dist1 < menorDist) {
-            menorDist = dist1;
-            cor = [pr, pg, pb];
-    }
-    }else {
-        const [pI, pT, pP] = rgbToICtCp(padrao[i]);
-        const [I,T,P] = rgbToICtCp([r,g,b])
-        const dist2 = (pI - I)**2 + ((pT - T)*0.5)**2 + (pP - P)**2
-        if (dist2 < menorDist) {
-            menorDist = dist2;
-            cor = padrao[i];
-    }
+    const [pr, pg, pb] = padrao[i];
+    const dist = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2;
+    if (dist < menorDist) {
+      menorDist = dist;
+      cor = [pr, pg, pb];
     }
   }
   return cor;
@@ -193,7 +119,7 @@ function processarImagem() {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    const [nr, ng, nb] = corMaisProxima(r, g, b, simples);
+    const [nr, ng, nb] = corMaisProxima(r, g, b);
     data[i] = nr;
     data[i + 1] = ng;
     data[i + 2] = nb;
