@@ -98,27 +98,54 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const downloadLink = document.getElementById('download');
 
-window.addEventListener('paste', function (event) {
-  if (!event.clipboardData) return;
-  const items = event.clipboardData.items;
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].type.indexOf('image') !== -1) {
-      const file = items[i].getAsFile();
-      if (file) {
-        const uploadInput = document.getElementById('upload');
-        // Create a DataTransfer to simulate file input
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        uploadInput.files = dt.files;
-        // Trigger change event to load image
-        const changeEvent = new Event('change', { bubbles: true });
-        uploadInput.dispatchEvent(changeEvent);
-      }
+function showCustomToast(message) {
+  const toastBtn = document.getElementById('clipboard');
+  if (!toastBtn) return;
+  const originalText = toastBtn.textContent;
+  toastBtn.textContent = message;
+  toastBtn.style.background = '#D60270';
+  toastBtn.style.color = '#fff';
+  setTimeout(() => {
+    toastBtn.textContent = originalText;
+    toastBtn.style.background = '';
+    toastBtn.style.color = '';
+  }, 1800);
+}
+
+document.getElementById('clipboard').addEventListener('click', async function () {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+  let allTransparent = true;
+  for (let i = 3; i < imageData.length; i += 4) {
+    if (imageData[i] !== 0) {
+      allTransparent = false;
       break;
     }
   }
-});
 
+  const lang = getCurrentLang();
+  const t = translations[lang] || translations['en'];
+
+  if (allTransparent) {
+    showCustomToast(t.imageNotFound);
+    return;
+  }
+
+  canvas.toBlob(async (blob) => {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      showCustomToast(t.imageCopied);
+    } catch (err) {
+      showCustomToast(t.copyFailed);
+    }
+  }, 'image/png');
+});
 
 function corMaisProxima(r, g, b) {
   let menorDist = Infinity;
@@ -158,12 +185,17 @@ function processarImagem() {
 }
 
 function showImageInfo(width, height) {
+  const langSelect = document.getElementById('lang-select');
+  const lang = (langSelect && langSelect.value) || 'en';
+  const t = translations[lang];
+
   const widthP = document.getElementById('width');
   const heightP = document.getElementById('height');
   const areaP = document.getElementById('area');
-  if (widthP) widthP.textContent = `Width: ${width} px`;
-  if (heightP) heightP.textContent = `Height: ${height} px`;
-  if (areaP) areaP.textContent = `Area: ${width * height} px`;
+
+  if (widthP) widthP.textContent = `${t.width} ${width} px`;
+  if (heightP) heightP.textContent = `${t.height} ${height} px`;
+  if (areaP) areaP.textContent = `${t.area} ${width * height} px`;
 }
 
 function showColorUsage(colorCounts) {
@@ -343,39 +375,315 @@ document.addEventListener('DOMContentLoaded', function () {
       updatePadraoFromActiveButtons();
       if (originalImage) {
         applyScale(); 
-        applyPreview(); // <-- Add this line
+        applyPreview();
       }
     });
   });
 });
 
+const translations = {
+  en: {
+    title: "Wplace Color Converter",
+    freeColors: "Free Colors:",
+    paidColors: "Paid Colors (2000💧each):",
+    download: "Download Image",
+    clipboard: "Copy to Clipboard",
+    goto: "Go to Wplace",
+    pixelsAmount: "Pixels Amount:",
+    width: "Width:",
+    height: "Height:",
+    area: "Area:",
+    imageCopied: "Image copied to clipboard!",
+    copyFailed: "Failed to copy image.",
+    imageNotFound: "Image not found",
+  },
+  pt: {
+    title: "Conversor de Cores Wplace",
+    freeColors: "Cores Gratuitas:",
+    paidColors: "Cores Pagas (2000💧cada):",
+    download: "Baixar Imagem",
+    clipboard: "Copiar para Área de Transferência",
+    goto: "Ir para o Wplace",
+    pixelsAmount: "Quantidade de Pixels:",
+    width: "Largura:",
+    height: "Altura:",
+    area: "Área:",
+    imageCopied: "Imagem copiada para a área de transferência!",
+    copyFailed: "Falha ao copiar a imagem.",
+    imageNotFound: "Imagem não encontrada",
+  },
+  de: {
+    title: "Wplace Farbkonverter",
+    freeColors: "Kostenlose Farben:",
+    paidColors: "Bezahlte Farben (2000💧 pro Stück):",
+    download: "Bild herunterladen",
+    clipboard: "In die Zwischenablage kopieren",
+    goto: "Zu Wplace gehen",
+    pixelsAmount: "Anzahl der Pixel:",
+    width: "Breite:",
+    height: "Höhe:",
+    area: "Fläche:",
+    imageCopied: "Bild in Zwischenablage kopiert!",
+    copyFailed: "Bild konnte nicht kopiert werden.",
+    imageNotFound: "Bild nicht gefunden",
+  },
+  es: {
+    title: "Convertidor de Colores Wplace",
+    freeColors: "Colores Gratis:",
+    paidColors: "Colores de Pago (2000💧 cada uno):",
+    download: "Descargar Imagen",
+    clipboard: "Copiar al Portapapeles",
+    goto: "Ir a Wplace",
+    pixelsAmount: "Cantidad de píxeles:",
+    width: "Ancho:",
+    height: "Alto:",
+    area: "Área:",
+    imageCopied: "¡Imagen copiada al portapapeles!",
+    copyFailed: "Error al copiar la imagen.",
+    imageNotFound: "Imagen no encontrada",
+  },
+  fr: {
+    title: "Convertisseur de Couleurs Wplace",
+    freeColors: "Couleurs Gratuites :",
+    paidColors: "Couleurs Payantes (2000💧 chacune) :",
+    download: "Télécharger l’image",
+    clipboard: "Copier dans le presse-papiers",
+    goto: "Aller sur Wplace",
+    pixelsAmount: "Nombre de pixels :",
+    width: "Largeur :",
+    height: "Hauteur :",
+    area: "Surface :",
+    imageCopied: "Image copiée dans le presse-papiers !",
+    copyFailed: "Échec de la copie de l’image.",
+    imageNotFound: "Image non trouvée",
+  },
+  uk: {
+    title: "Конвертер кольорів Wplace",
+    freeColors: "Безкоштовні кольори:",
+    paidColors: "Платні кольори (2000💧 кожен):",
+    download: "Завантажити зображення",
+    clipboard: "Копіювати в буфер обміну",
+    goto: "Перейти до Wplace",
+    pixelsAmount: "Кількість пікселів:",
+    width: "Ширина:",
+    height: "Висота:",
+    area: "Площа:",
+    imageCopied: "Зображення скопійовано в буфер обміну!",
+    copyFailed: "Не вдалося скопіювати зображення.",
+    imageNotFound: "Зображення не знайдено",
+  },
+  vi: {
+    title: "Trình chuyển đổi màu Wplace",
+    freeColors: "Màu miễn phí:",
+    paidColors: "Màu trả phí (2000💧 mỗi màu):",
+    download: "Tải hình ảnh",
+    clipboard: "Sao chép vào bộ nhớ tạm",
+    goto: "Đi đến Wplace",
+    pixelsAmount: "Số lượng điểm ảnh:",
+    width: "Chiều rộng:",
+    height: "Chiều cao:",
+    area: "Diện tích:",
+    imageCopied: "Đã sao chép hình ảnh vào bộ nhớ tạm!",
+    copyFailed: "Sao chép hình ảnh thất bại.",
+    imageNotFound: "Không tìm thấy hình ảnh",
+  },
+  ja: {
+    title: "Wplace カラーコンバーター",
+    freeColors: "無料カラー：",
+    paidColors: "有料カラー（1色2000💧）：",
+    download: "画像をダウンロード",
+    clipboard: "クリップボードにコピー",
+    goto: "Wplaceへ移動",
+    pixelsAmount: "ピクセル数：",
+    width: "幅：",
+    height: "高さ：",
+    area: "面積：",
+    imageCopied: "画像がクリップボードにコピーされました！",
+    copyFailed: "画像のコピーに失敗しました。",
+    imageNotFound: "画像が見つかりません",
+  },
+  de_CH: {
+    title: "Wplace Farbkonverter",
+    freeColors: "Kostenlose Farben:",
+    paidColors: "Bezahlte Farben (2000💧 pro Farbe):",
+    download: "Bild herunterladen",
+    clipboard: "In die Zwischenablage kopieren",
+    goto: "Zu Wplace gehen",
+    pixelsAmount: "Pixelanzahl:",
+    width: "Breite:",
+    height: "Höhe:",
+    area: "Fläche:",
+    imageCopied: "Bild in Zwischenablage kopiert!",
+    copyFailed: "Bild konnte nicht kopiert werden.",
+    imageNotFound: "Bild nicht gefunden",
+  },
+  nl: {
+    title: "Wplace Kleurconverter",
+    freeColors: "Gratis kleuren:",
+    paidColors: "Betaalde kleuren (2000💧 per stuk):",
+    download: "Afbeelding downloaden",
+    clipboard: "Kopiëren naar klembord",
+    goto: "Ga naar Wplace",
+    pixelsAmount: "Aantal pixels:",
+    width: "Breedte:",
+    height: "Hoogte:",
+    area: "Oppervlakte:",
+    imageCopied: "Afbeelding gekopieerd naar klembord!",
+    copyFailed: "Afbeelding kopiëren mislukt.",
+    imageNotFound: "Afbeelding niet gevonden",
+  },
+  ru: {
+    title: "Конвертер цветов Wplace",
+    freeColors: "Бесплатные цвета:",
+    paidColors: "Платные цвета (2000💧 за каждый):",
+    download: "Скачать изображение",
+    clipboard: "Копировать в буфер обмена",
+    goto: "Перейти на Wplace",
+    pixelsAmount: "Количество пикселей:",
+    width: "Ширина:",
+    height: "Высота:",
+    area: "Площадь:",
+    imageCopied: "Изображение скопировано в буфер обмена!",
+    copyFailed: "Не удалось скопировать изображение.",
+    imageNotFound: "Изображение не найдено",
+  }
+};
 
-function showCustomToast(message) {
-  const toastBtn = document.getElementById('clipboard');
-  if (!toastBtn) return;
-  const originalText = toastBtn.textContent;
-  toastBtn.textContent = message;
-  toastBtn.style.background = '#D60270';
-  toastBtn.style.color = '#fff';
-  setTimeout(() => {
-    toastBtn.textContent = originalText;
-    toastBtn.style.background = '';
-    toastBtn.style.color = '';
-  }, 1800);
+
+
+function applyTranslations(lang) {
+  const elements = document.querySelectorAll("[data-i18n]");
+  elements.forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+
+  // Also re-translate width, height, and area
+  if (currentImageWidth && currentImageHeight) {
+    const t = translations[lang];
+    document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
+    document.getElementById("height").textContent = `${t.height} ${currentImageHeight}`;
+    document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
+  }
 }
 
-document.getElementById('clipboard').addEventListener('click', async function () {
-  const canvas = document.getElementById('canvas');
-  if (!canvas) return;
 
-  canvas.toBlob(async (blob) => {
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
-      ]);
-      showCustomToast('Image copied to clipboard!');
-    } catch (err) {
-      showCustomToast('Failed to copy image.');
-    }
-  }, 'image/png');
+document.getElementById("lang-select").addEventListener("change", function () {
+  const lang = this.value;
+  applyTranslations(lang);
+  localStorage.setItem("lang", lang);
 });
+
+// Load saved language on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const savedLang = localStorage.getItem("lang") || "en";
+  document.getElementById("lang-select").value = savedLang;
+  applyTranslations(savedLang);
+});
+
+// Global variables for image size:
+let currentImageWidth = null;
+let currentImageHeight = null;
+
+// Helper to get current language from selector
+function getCurrentLang() {
+  const langSelect = document.getElementById('lang-select');
+  return (langSelect && langSelect.value) || 'en';
+}
+
+// Show image info with translation
+function showImageInfo(width, height) {
+  const lang = getCurrentLang();
+  const t = translations[lang];
+  if (!width || !height) return;
+  document.getElementById("width").textContent = `${t.width} ${width} px`;
+  document.getElementById("height").textContent = `${t.height} ${height} px`;
+  document.getElementById("area").textContent = `${t.area} ${width * height} px`;
+}
+
+// Update translations and image info when language changes
+function applyTranslations(lang) {
+  const elements = document.querySelectorAll("[data-i18n]");
+  elements.forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+
+  // Refresh width/height/area display
+  showImageInfo(currentImageWidth, currentImageHeight);
+}
+
+// Language selector change event
+document.getElementById("lang-select").addEventListener("change", function () {
+  const lang = this.value;
+  applyTranslations(lang);
+  localStorage.setItem("lang", lang);
+});
+
+// On page load, load saved language and apply it
+document.addEventListener("DOMContentLoaded", () => {
+  const savedLang = localStorage.getItem("lang") || "en";
+  document.getElementById("lang-select").value = savedLang;
+  applyTranslations(savedLang);
+});
+
+// When loading an image, update the global size variables
+upload.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const img = new Image();
+    img.onload = () => {
+      originalImage = img;
+
+      currentImageWidth = img.width;
+      currentImageHeight = img.height;
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      processarImagem();
+
+      // Show info for the loaded image
+      showImageInfo(currentImageWidth, currentImageHeight);
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.addEventListener('paste', function (event) {
+  if (!event.clipboardData) return;
+  const items = event.clipboardData.items;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      const file = items[i].getAsFile();
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const img = new Image();
+          img.onload = function () {
+            originalImage = img;
+            currentImageWidth = img.width;
+            currentImageHeight = img.height;
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            processarImagem();
+            showImageInfo(currentImageWidth, currentImageHeight);
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+      event.preventDefault();
+      break;
+    }
+  }
+});
+

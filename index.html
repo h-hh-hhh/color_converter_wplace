@@ -13,37 +13,57 @@
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
 </head>
 
- <body>
+<body>
 
-  <h2>Wplace Color Converter</h2>
+<div class="lang_select" style="position: absolute; right: 20px;top: 20px;">
+  <label for="lang-select">Language:</label>
+  <select id="lang-select">
+    <option value="en">English</option>
+    <option value="pt">Português</option>
+    <option value="de">Deutsch</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+    <option value="uk">Українська</option>
+    <option value="vi">Tiếng Việt</option>
+    <option value="ja">日本語</option>
+    <option value="de_CH">Deutsch (Schweiz)</option>
+    <option value="nl">Nederlands</option>
+    <option value="ru">Русский</option>
+  </select>
+</div>
+
+
+  <h2 data-i18n="title">Wplace Color Converter</h2>
+
   <input type="file" id="upload" accept="image/*"><br>
-  
+
   <canvas id="canvas"></canvas><br>
-        <p class="image-info" id="width"></p>
-        <p class="image-info" id="height"></p>
-        <p class="image-info" id="area"></p>
-        
-        <div class="scroll-bar">
-          <label for="scaleRange">Scale: </label>
-          <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
-          <span id="scaleValue">1.00x</span>
-        </div><br>
 
-        <div class="scroll-bar">
-          <label for="zoomRange">Zoom: </label>
-          <input type="range" id="zoomRange" min="0.01" max="5" step="0.01" value="1">
-          <span id="zoomValue">1.00x</span>
-        </div><br>
+  <p class="image-info" id="width"></p>
+  <p class="image-info" id="height"></p>
+  <p class="image-info" id="area"></p>
 
-        <div class="row">
-          <a id="download" class="button" href="#" download="converted_colors.png">Download Image</a>
-          <a id="clipboard" class="button">Copy to Clipboard</a>
-          <a class="button" target="_blank" href="https://wplace.live/">Go to Wplace</a>
-        </div>
+  <div class="scroll-bar">
+    <label for="scaleRange" data-i18n="scale">Scale: </label>
+    <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
+    <span id="scaleValue">1.00x</span>
+  </div><br>
 
-        <p>Free Colors:</p>
-        <div id="colors">
-          <button class="toggle-color active" style="background: rgb(0,0,0); color: #fff;" title="Black: rgb(0, 0, 0)">Black</button>
+  <div class="scroll-bar">
+    <label for="zoomRange" data-i18n="zoom">Zoom: </label>
+    <input type="range" id="zoomRange" min="0.01" max="5" step="0.01" value="1">
+    <span id="zoomValue">1.00x</span>
+  </div><br>
+
+  <div class="row">
+    <a id="download" class="button" href="#" download="converted_colors.png" data-i18n="download">Download Image</a>
+    <a id="clipboard" class="button" data-i18n="clipboard">Copy to Clipboard</a>
+    <a class="button" target="_blank" href="https://wplace.live/" data-i18n="goto">Go to Wplace</a>
+  </div>
+
+  <p data-i18n="freeColors">Free Colors:</p>
+  <div id="colors">
+<button class="toggle-color active" style="background: rgb(0,0,0); color: #fff;" title="Black: rgb(0, 0, 0)">Black</button>
           <button class="toggle-color active" style="background: rgb(60,60,60); color: #fff;" title="Dark Gray: rgb(60, 60, 60)">Dark Gray</button>
           <button class="toggle-color active" style="background: rgb(120,120,120);" title="Gray: rgb(120, 120, 120)">Gray</button>
           <button class="toggle-color active" style="background: rgb(210,210,210);" title="Light Gray: rgb(210, 210, 210)">Light Gray</button>
@@ -73,11 +93,12 @@
           <button class="toggle-color active" style="background: rgb(243,141,169);" title="Light Pink: rgb(243, 141, 169)">Light Pink</button>
           <button class="toggle-color active" style="background: rgb(104,70,52); color: #fff;" title="Dark Brown: rgb(104, 70, 52)">Dark Brown</button>
           <button class="toggle-color active" style="background: rgb(149,104,42);" title="Brown: rgb(149, 104, 42)">Brown</button>
-          <button class="toggle-color active" style="background: rgb(248,178,119);" title="Beige: rgb(248, 178, 119)">Beige</button>
-        </div>
-        <p>Paid Colors (2000💧each):</p>
-          <div id="colors">
-            <button class="toggle-color" style="background: rgb(170,170,170);" title="Medium Gray: rgb(170, 170, 170)">Medium Gray</button>
+          <button class="toggle-color active" style="background: rgb(248,178,119);" title="Beige: rgb(248, 178, 119)">Beige</button> 
+  </div>
+
+  <p data-i18n="paidColors">Paid Colors (2000💧each):</p>
+  <div id="colors-paid">
+<button class="toggle-color" style="background: rgb(170,170,170);" title="Medium Gray: rgb(170, 170, 170)">Medium Gray</button>
             <button class="toggle-color" style="background: rgb(165,14,30); color: #fff;" title="Dark Red: rgb(165,14,30)">Dark Red</button>
             <button class="toggle-color" style="background: rgb(250,128,114);" title="Light Red: rgb(250, 128, 114)">Light Red</button>
             <button class="toggle-color" style="background: rgb(228,92,26);" title="Dark Orange: rgb(228, 92, 26)">Dark Orange</button>
@@ -108,12 +129,11 @@
             <button class="toggle-color" style="background: rgb(205,197,158);" title="Light Stone: rgb(205, 197, 158)">Light Stone</button>
             <button class="toggle-color" style="background: rgb(51,57,65); color: #fff;" title="Dark Slate: rgb(51, 57, 65)">Dark Slate</button>
             <button class="toggle-color" style="background: rgb(109,117,141);" title="Slate: rgb(109, 117, 141)">Slate</button>
-            <button class="toggle-color" style="background: rgb(179,185,209);" title="Light Slate: rgb(179, 185, 209)">Light Slate</button>
-          </div>
-        <p id="pixels_amount"></p>
-        <div id="color-list"></div>
+            <button class="toggle-color" style="background: rgb(179,185,209);" title="Light Slate: rgb(179, 185, 209)">Light Slate</button> 
   </div>
-</body>
-</html>
+  <div id="color-list"></div>
 
-<script src="main.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>
