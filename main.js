@@ -68,7 +68,9 @@ const colorNames = {
   "205,197,158": "Light Stone",
   "51,57,65": "Dark Slate",
   "109,117,141": "Slate",
-  "179,185,209": "Light Slate"
+  "179,185,209": "Light Slate",
+  "135,255,94": "Light Green",
+  "12,129,110": "Dark Teal"
 };
 
 let padrao = [];
