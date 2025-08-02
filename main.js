@@ -217,13 +217,10 @@ function processarImagem() {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    const t = data[i + 3]; 
     const [nr, ng, nb] = corMaisProxima(r, g, b);
     data[i] = nr;
     data[i + 1] = ng;
     data[i + 2] = nb;
-    if t != 0: 
-      data[i + 3] = 255
     const key = `${nr},${ng},${nb}`;
     colorCounts[key] = (colorCounts[key] || 0) + 1;
   }
