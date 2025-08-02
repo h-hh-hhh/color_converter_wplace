@@ -98,6 +98,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const downloadLink = document.getElementById('download');
 
+// Clipboard
 function showCustomToast(message) {
   const toastBtn = document.getElementById('clipboard');
   if (!toastBtn) return;
@@ -147,6 +148,38 @@ document.getElementById('clipboard').addEventListener('click', async function ()
   }, 'image/png');
 });
 
+// Handle paste events to allow image pasting
+document.addEventListener('paste', function (event) {
+  if (!event.clipboardData) return;
+  const items = event.clipboardData.items;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      const file = items[i].getAsFile();
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const img = new Image();
+          img.onload = function () {
+            originalImage = img;
+            currentImageWidth = img.width;
+            currentImageHeight = img.height;
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            processarImagem();
+            showImageInfo(currentImageWidth, currentImageHeight);
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+      event.preventDefault();
+      break;
+    }
+  }
+});
+
+// Function to find the closest color in the pattern
 function corMaisProxima(r, g, b) {
   let menorDist = Infinity;
   let cor = [0, 0, 0];
@@ -161,6 +194,7 @@ function corMaisProxima(r, g, b) {
   return cor;
 }
 
+// Image processing
 function processarImagem() {
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
@@ -184,6 +218,7 @@ function processarImagem() {
   document.getElementById('pixels_amount').textContent = "Pixels Amount: ${totalPixels} px";
 }
 
+// Image info display
 function showImageInfo(width, height) {
   const langSelect = document.getElementById('lang-select');
   const lang = (langSelect && langSelect.value) || 'en';
@@ -198,6 +233,7 @@ function showImageInfo(width, height) {
   if (areaP) areaP.textContent = `${t.area} ${width * height} px`;
 }
 
+// Color usage display
 function showColorUsage(colorCounts) {
   const colorListDiv = document.getElementById('color-list');
   if (!colorListDiv) return;
@@ -227,46 +263,95 @@ function showColorUsage(colorCounts) {
   });
 }
 
-// All button scripts
-document.getElementById('select-all-free').addEventListener('click', function () {
+// --- Script for buttons ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  const selectAllFreeBtn = document.getElementById('unselect-all-free');
+  if (!selectAllFreeBtn) {
+    console.error('select-all-free button not found');
+    return;
+  }
+
+  const lang = getCurrentLang();
+  const t = translations[lang] || translations['en'];
+
+  // Start with all free buttons selected
   const freeButtons = document.querySelectorAll('#colors .toggle-color[data-type="free"]');
-  const allActive = Array.from(freeButtons).every(btn => btn.classList.contains('active'));
+  freeButtons.forEach(btn => btn.classList.add('active'));
+  selectAllFreeBtn.textContent = t.allButtonfreeUnselect;
 
-  if (allActive) {
-    // If all are active, remove active from all
-    freeButtons.forEach(btn => btn.classList.remove('active'));
-  } else {
-    // Otherwise, add active to all
-    freeButtons.forEach(btn => btn.classList.add('active'));
-  }
+  selectAllFreeBtn.addEventListener('click', () => {
+    const lang = getCurrentLang();
+    const t = translations[lang] || translations['en'];
 
-  updatePadraoFromActiveButtons();
-  if (originalImage) {
-    applyScale();
-    applyPreview();
-  }
+    const isCurrentlySelected = selectAllFreeBtn.textContent === t.allButtonfreeUnselect;
+
+    if (isCurrentlySelected) {
+      freeButtons.forEach(btn => btn.classList.remove('active'));
+      selectAllFreeBtn.textContent = t.allButtonfreeSelect;
+    } else {
+      freeButtons.forEach(btn => btn.classList.add('active'));
+      selectAllFreeBtn.textContent = t.allButtonfreeUnselect;
+    }
+
+    if (typeof updatePadraoFromActiveButtons === 'function') {
+      updatePadraoFromActiveButtons();
+    }
+
+    if (typeof originalImage !== 'undefined' && originalImage) {
+      if (typeof applyScale === 'function') applyScale();
+      if (typeof applyPreview === 'function') applyPreview();
+    }
+  });
 });
 
-document.getElementById('select-all-paid').addEventListener('click', function () {
-  const freeButtons = document.querySelectorAll('#colors .toggle-color[data-type="paid"]');
-  const allActive = Array.from(freeButtons).every(btn => btn.classList.contains('active'));
 
-  if (allActive) {
-    // If all are active, remove active from all
-    freeButtons.forEach(btn => btn.classList.remove('active'));
-  } else {
-    // Otherwise, add active to all
-    freeButtons.forEach(btn => btn.classList.add('active'));
+// Paid Colors
+     
+document.addEventListener('DOMContentLoaded', () => {
+  const selectAllPaidBtn = document.getElementById('select-all-paid');
+  if (!selectAllPaidBtn) {
+    console.error('select-all-paid button not found');
+    return;
   }
 
-  updatePadraoFromActiveButtons();
-  if (originalImage) {
-    applyScale();
-    applyPreview();
-  }
+  let isAllPaidSelected = false;
+
+  const lang = getCurrentLang();
+  const t = translations[lang] || translations['en'];
+
+  selectAllPaidBtn.textContent = t.allButtonpaidSelect;
+
+  selectAllPaidBtn.addEventListener('click', () => {
+    const paidButtons = document.querySelectorAll('#colors .toggle-color[data-type="paid"]');
+    isAllPaidSelected = !isAllPaidSelected;
+
+    paidButtons.forEach(btn => {
+      btn.classList.toggle('active', isAllPaidSelected);
+    });
+
+    const currentLang = getCurrentLang();
+    const tt = translations[currentLang] || translations['en'];
+
+    selectAllPaidBtn.textContent = isAllPaidSelected
+      ? tt.allButtonpaidUnselect
+      : tt.allButtonpaidSelect;
+
+    if (typeof updatePadraoFromActiveButtons === 'function') {
+      updatePadraoFromActiveButtons();
+    }
+
+    if (typeof originalImage !== 'undefined' && originalImage) {
+      if (typeof applyScale === 'function') applyScale();
+      if (typeof applyPreview === 'function') applyPreview();
+    }
+  });
 });
+
+
 // --End of Script for buttons--
 
+// Scale and Zoom functionality
 const scaleRange = document.getElementById('scaleRange');
 const scaleValue = document.getElementById('scaleValue');
 const zoomRange = document.getElementById('zoomRange');
@@ -436,8 +521,12 @@ const translations = {
     imageCopied: "Image copied to clipboard!",
     copyFailed: "Failed to copy image.",
     imageNotFound: "Image not found",
-    allButtonfree: "Select All Free Colors",
-    allButtonpaid: "Select All 💧Paid Colors"
+    allButtonfreeSelect: "Select All Free Colors",
+    allButtonfreeUnselect: "Unselect All Free Colors",
+    allButtonpaidSelect: "Select All 💧Paid Colors",
+    allButtonpaidUnselect: "Unselect All 💧Paid Colors",
+    zoom: "Zoom",
+    scale: "Scale"
   },
   pt: {
     title: "Conversor de Cores Wplace",
@@ -453,8 +542,12 @@ const translations = {
     imageCopied: "Imagem copiada para a área de transferência!",
     copyFailed: "Falha ao copiar a imagem.",
     imageNotFound: "Imagem não encontrada",
-    allButtonfree: "Selecionar Todas as Cores Gratuitas",
-    allButtonpaid: "Selecionar Todas as Cores Pagas 💧"
+    allButtonfreeSelect: "Selecionar Todas as Cores Gratuitas",
+    allButtonfreeUnselect: "Desmarcar Todas as Cores Gratuitas",
+    allButtonpaidSelect: "Selecionar Todas as Cores Pagas 💧",
+    allButtonpaidUnselect: "Desmarcar Todas as Cores Pagas 💧",
+    zoom: "Zoom",
+    scale: "Escala"
   },
   de: {
     title: "Wplace Farbkonverter",
@@ -470,8 +563,12 @@ const translations = {
     imageCopied: "Bild in Zwischenablage kopiert!",
     copyFailed: "Bild konnte nicht kopiert werden.",
     imageNotFound: "Bild nicht gefunden",
-    allButtonfree: "Alle kostenlosen Farben auswählen",
-    allButtonpaid: "Alle 💧bezahlten Farben auswählen"
+    allButtonfreeSelect: "Alle kostenlosen Farben auswählen",
+    allButtonfreeUnselect: "Alle kostenlosen Farben abwählen",
+    allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
+    allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
+    zoom: "Zoom",
+    scale: "Maßstab"
   },
   es: {
     title: "Convertidor de Colores Wplace",
@@ -487,8 +584,12 @@ const translations = {
     imageCopied: "¡Imagen copiada al portapapeles!",
     copyFailed: "Error al copiar la imagen.",
     imageNotFound: "Imagen no encontrada",
-    allButtonfree: "Seleccionar todos los colores gratis",
-    allButtonpaid: "Seleccionar todos los colores 💧de pago"
+    allButtonfreeSelect: "Seleccionar todos los colores gratis",
+    allButtonfreeUnselect: "Deseleccionar todos los colores gratis",
+    allButtonpaidSelect: "Seleccionar todos los colores 💧de pago",
+    allButtonpaidUnselect: "Deseleccionar todos los colores 💧de pago",
+    zoom: "Zoom",
+    scale: "Escala"
   },
   fr: {
     title: "Convertisseur de Couleurs Wplace",
@@ -504,8 +605,12 @@ const translations = {
     imageCopied: "Image copiée dans le presse-papiers !",
     copyFailed: "Échec de la copie de l’image.",
     imageNotFound: "Image non trouvée",
-    allButtonfree: "Sélectionner toutes les couleurs gratuites",
-    allButtonpaid: "Sélectionner toutes les couleurs 💧payantes"
+    allButtonfreeSelect: "Sélectionner toutes les couleurs gratuites",
+    allButtonfreeUnselect: "Désélectionner toutes les couleurs gratuites",
+    allButtonpaidSelect: "Sélectionner toutes les couleurs 💧payantes",
+    allButtonpaidUnselect: "Désélectionner toutes les couleurs 💧payantes",
+    zoom: "Zoom",
+    scale: "Échelle"
   },
   uk: {
     title: "Конвертер кольорів Wplace",
@@ -521,8 +626,12 @@ const translations = {
     imageCopied: "Зображення скопійовано в буфер обміну!",
     copyFailed: "Не вдалося скопіювати зображення.",
     imageNotFound: "Зображення не знайдено",
-    allButtonfree: "Вибрати всі безкоштовні кольори",
-    allButtonpaid: "Вибрати всі 💧платні кольори"
+    allButtonfreeSelect: "Вибрати всі безкоштовні кольори",
+    allButtonfreeUnselect: "Зняти вибір усіх безкоштовних кольорів",
+    allButtonpaidSelect: "Вибрати всі 💧платні кольори",
+    allButtonpaidUnselect: "Зняти вибір усіх 💧платних кольорів",
+    zoom: "Зум",
+    scale: "Масштаб"
   },
   vi: {
     title: "Trình chuyển đổi màu Wplace",
@@ -538,8 +647,12 @@ const translations = {
     imageCopied: "Đã sao chép hình ảnh vào bộ nhớ tạm!",
     copyFailed: "Sao chép hình ảnh thất bại.",
     imageNotFound: "Không tìm thấy hình ảnh",
-    allButtonfree: "Chọn tất cả màu miễn phí",
-    allButtonpaid: "Chọn tất cả màu 💧trả phí"
+    allButtonfreeSelect: "Chọn tất cả màu miễn phí",
+    allButtonfreeUnselect: "Bỏ chọn tất cả màu miễn phí",
+    allButtonpaidSelect: "Chọn tất cả màu 💧trả phí",
+    allButtonpaidUnselect: "Bỏ chọn tất cả màu 💧trả phí",
+    zoom: "Thu phóng",
+    scale: "Tỉ lệ"
   },
   ja: {
     title: "Wplace カラーコンバーター",
@@ -555,65 +668,123 @@ const translations = {
     imageCopied: "画像がクリップボードにコピーされました！",
     copyFailed: "画像のコピーに失敗しました。",
     imageNotFound: "画像が見つかりません",
-    allButtonfree: "すべての無料カラーを選択",
-    allButtonpaid: "すべての💧有料カラーを選択"
+    allButtonfreeSelect: "すべての無料カラーを選択",
+    allButtonfreeUnselect: "すべての無料カラーの選択を解除",
+    allButtonpaidSelect: "すべての💧有料カラーを選択",
+    allButtonpaidUnselect: "すべての💧有料カラーの選択を解除",
+    zoom: "ズーム",
+    scale: "スケール"
   },
-  de_CH: {
-    title: "Wplace Farbkonverter",
-    freeColors: "Kostenlose Farben:",
-    paidColors: "Bezahlte Farben (2000💧 pro Farbe):",
-    download: "Bild herunterladen",
-    clipboard: "In die Zwischenablage kopieren",
-    goto: "Zu Wplace gehen",
-    pixelsAmount: "Pixelanzahl:",
-    width: "Breite:",
-    height: "Höhe:",
-    area: "Fläche:",
-    imageCopied: "Bild in Zwischenablage kopiert!",
-    copyFailed: "Bild konnte nicht kopiert werden.",
-    imageNotFound: "Bild nicht gefunden",
-    allButtonfree: "Alle kostenlosen Farben auswählen",
-    allButtonpaid: "Alle 💧bezahlten Farben auswählen"
-  },
-  nl: {
-    title: "Wplace Kleurconverter",
-    freeColors: "Gratis kleuren:",
-    paidColors: "Betaalde kleuren (2000💧 per stuk):",
-    download: "Afbeelding downloaden",
-    clipboard: "Kopiëren naar klembord",
-    goto: "Ga naar Wplace",
-    pixelsAmount: "Aantal pixels:",
-    width: "Breedte:",
-    height: "Hoogte:",
-    area: "Oppervlakte:",
-    imageCopied: "Afbeelding gekopieerd naar klembord!",
-    copyFailed: "Afbeelding kopiëren mislukt.",
-    imageNotFound: "Afbeelding niet gevonden",
-    allButtonfree: "Selecteer alle gratis kleuren",
-    allButtonpaid: "Selecteer alle 💧betaalde kleuren"
-  },
-  ru: {
-    title: "Конвертер цветов Wplace",
-    freeColors: "Бесплатные цвета:",
-    paidColors: "Платные цвета (2000💧 за каждый):",
-    download: "Скачать изображение",
-    clipboard: "Копировать в буфер обмена",
-    goto: "Перейти на Wplace",
-    pixelsAmount: "Количество пикселей:",
-    width: "Ширина:",
-    height: "Высота:",
-    area: "Площадь:",
-    imageCopied: "Изображение скопировано в буфер обмена!",
-    copyFailed: "Не удалось скопировать изображение.",
-    imageNotFound: "Изображение не найдено",
-    allButtonfree: "Выбрать все бесплатные цвета",
-    allButtonpaid: "Выбрать все 💧платные цвета"
+  pl: {
+  title: "Konwerter Kolorów Wplace",
+  freeColors: "Darmowe Kolory:",
+  paidColors: "Płatne Kolory (2000💧za sztukę):",
+  download: "Pobierz Obraz",
+  clipboard: "Kopiuj do Schowka",
+  goto: "Przejdź do Wplace",
+  pixelsAmount: "Liczba Pikseli:",
+  width: "Szerokość:",
+  height: "Wysokość:",
+  area: "Powierzchnia:",
+  imageCopied: "Obraz skopiowany do schowka!",
+  copyFailed: "Nie udało się skopiować obrazu.",
+  imageNotFound: "Nie znaleziono obrazu",
+  allButtonfreeSelect: "Zaznacz Wszystkie Darmowe Kolory",
+  allButtonfreeUnselect: "Odznacz Wszystkie Darmowe Kolory",
+  allButtonpaidSelect: "Zaznacz Wszystkie Płatne Kolory 💧",
+  allButtonpaidUnselect: "Odznacz Wszystkie Płatne Kolory 💧",
+  zoom: "Powiększenie",
+  scale: "Skala"
+},
+de_CH: {
+  title: "Wplace Farbkonverter",
+  freeColors: "Kostenlose Farben:",
+  paidColors: "Bezahlte Farben (2000💧 pro Farbe):",
+  download: "Bild herunterladen",
+  clipboard: "In die Zwischenablage kopieren",
+  goto: "Zu Wplace gehen",
+  pixelsAmount: "Pixelanzahl:",
+  width: "Breite:",
+  height: "Höhe:",
+  area: "Fläche:",
+  imageCopied: "Bild in Zwischenablage kopiert!",
+  copyFailed: "Bild konnte nicht kopiert werden.",
+  imageNotFound: "Bild nicht gefunden",
+  allButtonfreeSelect: "Alle kostenlosen Farben auswählen",
+  allButtonfreeUnselect: "Alle kostenlosen Farben abwählen",
+  allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
+  allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
+  zoom: "Zoom",
+  scale: "Massstab"
+},
+nl: {
+  title: "Wplace Kleurconverter",
+  freeColors: "Gratis kleuren:",
+  paidColors: "Betaalde kleuren (2000💧 per stuk):",
+  download: "Afbeelding downloaden",
+  clipboard: "Kopiëren naar klembord",
+  goto: "Ga naar Wplace",
+  pixelsAmount: "Aantal pixels:",
+  width: "Breedte:",
+  height: "Hoogte:",
+  area: "Oppervlakte:",
+  imageCopied: "Afbeelding gekopieerd naar klembord!",
+  copyFailed: "Afbeelding kopiëren mislukt.",
+  imageNotFound: "Afbeelding niet gevonden",
+  allButtonfreeSelect: "Selecteer alle gratis kleuren",
+  allButtonfreeUnselect: "Deselecteer alle gratis kleuren",
+  allButtonpaidSelect: "Selecteer alle 💧betaalde kleuren",
+  allButtonpaidUnselect: "Deselecteer alle 💧betaalde kleuren",
+  zoom: "Zoom",
+  scale: "Schaal"
+},
+ru: {
+  title: "Конвертер цветов Wplace",
+  freeColors: "Бесплатные цвета:",
+  paidColors: "Платные цвета (2000💧 за каждый):",
+  download: "Скачать изображение",
+  clipboard: "Копировать в буфер обмена",
+  goto: "Перейти на Wplace",
+  pixelsAmount: "Количество пикселей:",
+  width: "Ширина:",
+  height: "Высота:",
+  area: "Площадь:",
+  imageCopied: "Изображение скопировано в буфер обмена!",
+  copyFailed: "Не удалось скопировать изображение.",
+  imageNotFound: "Изображение не найдено",
+  allButtonfreeSelect: "Выбрать все бесплатные цвета",
+  allButtonfreeUnselect: "Снять выбор со всех бесплатных цветов",
+  allButtonpaidSelect: "Выбрать все 💧платные цвета",
+  allButtonpaidUnselect: "Снять выбор со всех 💧платных цветов",
+  zoom: "Зум",
+  scale: "Масштаб"
+},
+tr: {
+  title: "Wplace Renk Dönüştürücü",
+  freeColors: "Ücretsiz Renkler:",
+  paidColors: "Ücretli Renkler (Her biri 2000💧):",
+  download: "Görseli İndir",
+  clipboard: "Panoya Kopyala",
+  goto: "Wplace'e Git",
+  pixelsAmount: "Piksel Sayısı:",
+  width: "Genişlik:",
+  height: "Yükseklik:",
+  area: "Alan:",
+  imageCopied: "Görsel panoya kopyalandı!",
+  copyFailed: "Resim kopyalanamadı.",
+  imageNotFound: "Görsel bulunamadı",
+  allButtonfreeSelect: "Tüm Ücretsiz Renkleri Seç",
+  allButtonfreeUnselect: "Tüm Ücretsiz Renklerin Seçimini Kaldır",
+  allButtonpaidSelect: "Tüm 💧Ücretli Renkleri Seç",
+  allButtonpaidUnselect: "Tüm 💧Ücretli Renklerin Seçimini Kaldır",
+  zoom: "Yakınlaştır",
+  scale: "Ölçek"
   }
 };
 
 
 
-
+// Translation function
 function applyTranslations(lang) {
   const elements = document.querySelectorAll("[data-i18n]");
   elements.forEach(el => {
@@ -719,34 +890,3 @@ upload.addEventListener('change', e => {
   };
   reader.readAsDataURL(file);
 });
-
-document.addEventListener('paste', function (event) {
-  if (!event.clipboardData) return;
-  const items = event.clipboardData.items;
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].type.indexOf('image') !== -1) {
-      const file = items[i].getAsFile();
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (evt) {
-          const img = new Image();
-          img.onload = function () {
-            originalImage = img;
-            currentImageWidth = img.width;
-            currentImageHeight = img.height;
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            processarImagem();
-            showImageInfo(currentImageWidth, currentImageHeight);
-          };
-          img.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-      event.preventDefault();
-      break;
-    }
-  }
-});
-

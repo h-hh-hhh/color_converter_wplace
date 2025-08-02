@@ -14,7 +14,7 @@
 </head>
 
 <body>
-
+<a class="button" style="position: absolute; left: 10px" target="blank" href="https://github.com/PEPOAFONSO/color_converter_wplace">Github</a>
 <div class="lang_select" style="position: absolute; right: 20px;top: 20px;">
   <label for="lang-select">Language:</label>
   <select id="lang-select">
@@ -25,10 +25,12 @@
     <option value="fr">Français</option>
     <option value="uk">Українська</option>
     <option value="vi">Tiếng Việt</option>
+    <option value="pl">Polski</option>
     <option value="ja">日本語</option>
     <option value="de_CH">Deutsch (Schweiz)</option>
     <option value="nl">Nederlands</option>
     <option value="ru">Русский</option>
+    <option value="tr">Türkçe</option>
   </select>
 </div>
 
@@ -62,7 +64,7 @@
   </div>
 
   <p data-i18n="freeColors">Free Colors:</p>
-  <button class="toggle-color" style="background: rgb(0,0,0); color: #fff;" id="select-all-free" data-i18n="allButtonfree">Select All Free Colors</button>
+  <button class="toggle-color" style="background: rgb(0,0,0); color: #fff;" id="unselect-all-free" data-i18n="allButtonfreeUnselect">Unselect All Free Colors</button>
   <div id="colors">
 <button class="toggle-color active" data-type="free" style="background: rgb(0,0,0); color: #fff;" title="Black: rgb(0, 0, 0)">Black</button>
           <button class="toggle-color active" data-type="free"  style="background: rgb(60,60,60); color: #fff;" title="Dark Gray: rgb(60, 60, 60)">Dark Gray</button>
@@ -98,7 +100,7 @@
   </div>
 
   <p data-i18n="paidColors">Paid Colors (2000💧each):</p>
-    <button class="toggle-color" style="background: rgb(0,0,0); color: #fff;" id="select-all-paid" data-i18n="allButtonpaid">Select All 💧Paid Colors</button>
+    <button class="toggle-color" style="background: rgb(0,0,0); color: #fff;" id="select-all-paid" data-i18n="allButtonpaidSelect">Select All 💧Paid Colors</button>
   <div id="colors">
 <button class="toggle-color" data-type="paid" style="background: rgb(170,170,170);" title="Medium Gray: rgb(170, 170, 170)">Medium Gray</button>
             <button class="toggle-color" data-type="paid" style="background: rgb(165,14,30); color: #fff;" title="Dark Red: rgb(165,14,30)">Dark Red</button>
