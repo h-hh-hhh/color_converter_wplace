@@ -253,6 +253,46 @@ function showColorUsage(colorCounts) {
   });
 }
 
+// All button scripts
+document.getElementById('select-all-free').addEventListener('click', function () {
+  const freeButtons = document.querySelectorAll('#colors .toggle-color[data-type="free"]');
+  const allActive = Array.from(freeButtons).every(btn => btn.classList.contains('active'));
+
+  if (allActive) {
+    // If all are active, remove active from all
+    freeButtons.forEach(btn => btn.classList.remove('active'));
+  } else {
+    // Otherwise, add active to all
+    freeButtons.forEach(btn => btn.classList.add('active'));
+  }
+
+  updatePadraoFromActiveButtons();
+  if (originalImage) {
+    applyScale();
+    applyPreview();
+  }
+});
+
+document.getElementById('select-all-paid').addEventListener('click', function () {
+  const freeButtons = document.querySelectorAll('#colors .toggle-color[data-type="paid"]');
+  const allActive = Array.from(freeButtons).every(btn => btn.classList.contains('active'));
+
+  if (allActive) {
+    // If all are active, remove active from all
+    freeButtons.forEach(btn => btn.classList.remove('active'));
+  } else {
+    // Otherwise, add active to all
+    freeButtons.forEach(btn => btn.classList.add('active'));
+  }
+
+  updatePadraoFromActiveButtons();
+  if (originalImage) {
+    applyScale();
+    applyPreview();
+  }
+});
+// --End of Script for buttons--
+
 const scaleRange = document.getElementById('scaleRange');
 const scaleValue = document.getElementById('scaleValue');
 const zoomRange = document.getElementById('zoomRange');
@@ -402,6 +442,8 @@ const translations = {
     imageCopied: "Image copied to clipboard!",
     copyFailed: "Failed to copy image.",
     imageNotFound: "Image not found",
+    allButtonfree: "Select All Free Colors",
+    allButtonpaid: "Select All 💧Paid Colors"
   },
   pt: {
     title: "Conversor de Cores Wplace",
@@ -417,6 +459,8 @@ const translations = {
     imageCopied: "Imagem copiada para a área de transferência!",
     copyFailed: "Falha ao copiar a imagem.",
     imageNotFound: "Imagem não encontrada",
+    allButtonfree: "Selecionar Todas as Cores Gratuitas",
+    allButtonpaid: "Selecionar Todas as Cores Pagas 💧"
   },
   de: {
     title: "Wplace Farbkonverter",
@@ -432,6 +476,8 @@ const translations = {
     imageCopied: "Bild in Zwischenablage kopiert!",
     copyFailed: "Bild konnte nicht kopiert werden.",
     imageNotFound: "Bild nicht gefunden",
+    allButtonfree: "Alle kostenlosen Farben auswählen",
+    allButtonpaid: "Alle 💧bezahlten Farben auswählen"
   },
   es: {
     title: "Convertidor de Colores Wplace",
@@ -447,6 +493,8 @@ const translations = {
     imageCopied: "¡Imagen copiada al portapapeles!",
     copyFailed: "Error al copiar la imagen.",
     imageNotFound: "Imagen no encontrada",
+    allButtonfree: "Seleccionar todos los colores gratis",
+    allButtonpaid: "Seleccionar todos los colores 💧de pago"
   },
   fr: {
     title: "Convertisseur de Couleurs Wplace",
@@ -462,6 +510,8 @@ const translations = {
     imageCopied: "Image copiée dans le presse-papiers !",
     copyFailed: "Échec de la copie de l’image.",
     imageNotFound: "Image non trouvée",
+    allButtonfree: "Sélectionner toutes les couleurs gratuites",
+    allButtonpaid: "Sélectionner toutes les couleurs 💧payantes"
   },
   uk: {
     title: "Конвертер кольорів Wplace",
@@ -477,6 +527,8 @@ const translations = {
     imageCopied: "Зображення скопійовано в буфер обміну!",
     copyFailed: "Не вдалося скопіювати зображення.",
     imageNotFound: "Зображення не знайдено",
+    allButtonfree: "Вибрати всі безкоштовні кольори",
+    allButtonpaid: "Вибрати всі 💧платні кольори"
   },
   vi: {
     title: "Trình chuyển đổi màu Wplace",
@@ -492,6 +544,8 @@ const translations = {
     imageCopied: "Đã sao chép hình ảnh vào bộ nhớ tạm!",
     copyFailed: "Sao chép hình ảnh thất bại.",
     imageNotFound: "Không tìm thấy hình ảnh",
+    allButtonfree: "Chọn tất cả màu miễn phí",
+    allButtonpaid: "Chọn tất cả màu 💧trả phí"
   },
   ja: {
     title: "Wplace カラーコンバーター",
@@ -507,6 +561,8 @@ const translations = {
     imageCopied: "画像がクリップボードにコピーされました！",
     copyFailed: "画像のコピーに失敗しました。",
     imageNotFound: "画像が見つかりません",
+    allButtonfree: "すべての無料カラーを選択",
+    allButtonpaid: "すべての💧有料カラーを選択"
   },
   de_CH: {
     title: "Wplace Farbkonverter",
@@ -522,6 +578,8 @@ const translations = {
     imageCopied: "Bild in Zwischenablage kopiert!",
     copyFailed: "Bild konnte nicht kopiert werden.",
     imageNotFound: "Bild nicht gefunden",
+    allButtonfree: "Alle kostenlosen Farben auswählen",
+    allButtonpaid: "Alle 💧bezahlten Farben auswählen"
   },
   nl: {
     title: "Wplace Kleurconverter",
@@ -537,6 +595,8 @@ const translations = {
     imageCopied: "Afbeelding gekopieerd naar klembord!",
     copyFailed: "Afbeelding kopiëren mislukt.",
     imageNotFound: "Afbeelding niet gevonden",
+    allButtonfree: "Selecteer alle gratis kleuren",
+    allButtonpaid: "Selecteer alle 💧betaalde kleuren"
   },
   ru: {
     title: "Конвертер цветов Wplace",
@@ -552,8 +612,11 @@ const translations = {
     imageCopied: "Изображение скопировано в буфер обмена!",
     copyFailed: "Не удалось скопировать изображение.",
     imageNotFound: "Изображение не найдено",
+    allButtonfree: "Выбрать все бесплатные цвета",
+    allButtonpaid: "Выбрать все 💧платные цвета"
   }
 };
+
 
 
 
