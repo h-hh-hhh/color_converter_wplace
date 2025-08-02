@@ -373,8 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
-
 // --End of Script for buttons--
 
 // Scale and Zoom functionality
