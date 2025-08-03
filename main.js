@@ -217,10 +217,19 @@ function processarImagem() {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
+    const a = data[i + 3];
     const [nr, ng, nb] = corMaisProxima(r, g, b);
     data[i] = nr;
     data[i + 1] = ng;
     data[i + 2] = nb;
+    if (a < 255 && a > 0) {
+      if (document.getElementById('transparentButton').classList.contains('active')) {
+        data[i + 3] = 0; // Make transparent if alpha is not fully opaque
+      }
+      else { 
+        data[i + 3] = 255; // Keep fully opaque if button is not active
+      }
+    }
     const key = `${nr},${ng},${nb}`;
     colorCounts[key] = (colorCounts[key] || 0) + 1;
   }
@@ -530,7 +539,9 @@ const translations = {
     allButtonpaidSelect: "Select All 💧Paid Colors",
     allButtonpaidUnselect: "Unselect All 💧Paid Colors",
     zoom: "Zoom",
-    scale: "Scale"
+    scale: "Scale",
+    transparentButton: "Hide Semi-Transparent Pixels",
+    transparentButtonTitle: "When active, semi-transparent pixels will be made fully transparent, otherwise they will be fully opaque."
   },
   pt: {
     title: "Conversor de Cores Wplace",
@@ -551,7 +562,9 @@ const translations = {
     allButtonpaidSelect: "Selecionar Todas as Cores Pagas 💧",
     allButtonpaidUnselect: "Desmarcar Todas as Cores Pagas 💧",
     zoom: "Zoom",
-    scale: "Escala"
+    scale: "Escala",
+    transparentButton: "Ocultar Pixels Semitransparentes",
+    transparentButtonTitle: "Remover Pixels Semitransparentes"
   },
   de: {
     title: "Wplace Farbkonverter",
@@ -572,7 +585,9 @@ const translations = {
     allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
     allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
     zoom: "Zoom",
-    scale: "Maßstab"
+    scale: "Maßstab",
+    transparentButton: "Halbtransparente Pixel ausblenden",
+    transparentButtonTitle: "Wenn aktiv, werden halbtransparente Pixel vollständig transparent, andernfalls vollständig undurchsichtig."
   },
   es: {
     title: "Convertidor de Colores Wplace",
@@ -593,7 +608,9 @@ const translations = {
     allButtonpaidSelect: "Seleccionar todos los colores 💧de pago",
     allButtonpaidUnselect: "Deseleccionar todos los colores 💧de pago",
     zoom: "Zoom",
-    scale: "Escala"
+    scale: "Escala",
+    transparentButton: "Ocultar píxeles semitransparentes",
+    transparentButtonTitle: "Cuando está activo, los píxeles semitransparentes se vuelven completamente transparentes, de lo contrario, completamente opacos."
   },
   fr: {
     title: "Convertisseur de Couleurs Wplace",
@@ -614,7 +631,9 @@ const translations = {
     allButtonpaidSelect: "Sélectionner toutes les couleurs 💧payantes",
     allButtonpaidUnselect: "Désélectionner toutes les couleurs 💧payantes",
     zoom: "Zoom",
-    scale: "Échelle"
+    scale: "Échelle",
+    transparentButton: "Masquer les pixels semi-transparents",
+    transparentButtonTitle: "Lorsque cette option est activée, les pixels semi-transparents deviennent complètement transparents, sinon ils restent complètement opaques."
   },
   uk: {
     title: "Конвертер кольорів Wplace",
@@ -635,7 +654,9 @@ const translations = {
     allButtonpaidSelect: "Вибрати всі 💧платні кольори",
     allButtonpaidUnselect: "Зняти вибір усіх 💧платних кольорів",
     zoom: "Зум",
-    scale: "Масштаб"
+    scale: "Масштаб",
+    transparentButton: "Сховати напівпрозорі пікселі",
+    transparentButtonTitle: "Коли активовано, напівпрозорі пікселі стають повністю прозорими, інакше вони залишаються повністю непрозорими."
   },
   vi: {
     title: "Trình chuyển đổi màu Wplace",
@@ -656,7 +677,9 @@ const translations = {
     allButtonpaidSelect: "Chọn tất cả màu 💧trả phí",
     allButtonpaidUnselect: "Bỏ chọn tất cả màu 💧trả phí",
     zoom: "Thu phóng",
-    scale: "Tỉ lệ"
+    scale: "Tỉ lệ",
+    transparentButton: "Ẩn các điểm ảnh bán trong suốt",
+    transparentButtonTitle: "Khi bật, các điểm ảnh bán trong suốt sẽ trở nên hoàn toàn trong suốt, nếu không sẽ hoàn toàn đục."
   },
   ja: {
     title: "Wplace カラーコンバーター",
@@ -677,7 +700,9 @@ const translations = {
     allButtonpaidSelect: "すべての💧有料カラーを選択",
     allButtonpaidUnselect: "すべての💧有料カラーの選択を解除",
     zoom: "ズーム",
-    scale: "スケール"
+    scale: "スケール",
+    transparentButton: "半透明ピクセルを非表示",
+    transparentButtonTitle: "有効にすると、半透明ピクセルは完全に透明になり、無効にすると完全に不透明になります。"
   },
   pl: {
   title: "Konwerter Kolorów Wplace",
@@ -698,7 +723,9 @@ const translations = {
   allButtonpaidSelect: "Zaznacz Wszystkie Płatne Kolory 💧",
   allButtonpaidUnselect: "Odznacz Wszystkie Płatne Kolory 💧",
   zoom: "Powiększenie",
-  scale: "Skala"
+  scale: "Skala",
+  transparentButton: "Ukryj półprzezroczyste piksele",
+  transparentButtonTitle: "Gdy aktywne, półprzezroczyste piksele będą całkowicie przezroczyste, w przeciwnym razie będą całkowicie nieprzezroczyste."
 },
 de_CH: {
   title: "Wplace Farbkonverter",
@@ -719,7 +746,9 @@ de_CH: {
   allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
   allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
   zoom: "Zoom",
-  scale: "Massstab"
+  scale: "Massstab",
+  transparentButton: "Halbtransparente Pixel ausblenden",
+  transparentButtonTitle: "Wenn aktiv, werden halbtransparente Pixel vollständig transparent, andernfalls vollständig undurchsichtig."
 },
 nl: {
   title: "Wplace Kleurconverter",
@@ -740,7 +769,9 @@ nl: {
   allButtonpaidSelect: "Selecteer alle 💧betaalde kleuren",
   allButtonpaidUnselect: "Deselecteer alle 💧betaalde kleuren",
   zoom: "Zoom",
-  scale: "Schaal"
+  scale: "Schaal",
+  transparentButton: "Verberg half-transparante pixels",
+  transparentButtonTitle: "Wanneer ingeschakeld, worden half-transparante pixels volledig transparant, anders blijven ze volledig ondoorzichtig."
 },
 ru: {
   title: "Конвертер цветов Wplace",
@@ -761,7 +792,9 @@ ru: {
   allButtonpaidSelect: "Выбрать все 💧платные цвета",
   allButtonpaidUnselect: "Снять выбор со всех 💧платных цветов",
   zoom: "Зум",
-  scale: "Масштаб"
+  scale: "Масштаб",
+  transparentButton: "Скрыть полупрозрачные пиксели",
+  transparentButtonTitle: "Когда включено, полупрозрачные пиксели становятся полностью прозрачными, иначе они остаются полностью непрозрачными."
 },
 tr: {
   title: "Wplace Renk Dönüştürücü",
@@ -782,31 +815,11 @@ tr: {
   allButtonpaidSelect: "Tüm 💧Ücretli Renkleri Seç",
   allButtonpaidUnselect: "Tüm 💧Ücretli Renklerin Seçimini Kaldır",
   zoom: "Yakınlaştır",
-  scale: "Ölçek"
+  scale: "Ölçek",
+  transparentButton: "Yarı saydam pikselleri gizle",
+  transparentButtonTitle: "Aktif olduğunda, yarı saydam pikseller tamamen saydam hale gelir, aksi takdirde tamamen opak kalır."
   }
-};
-
-
-
-// Translation function
-function applyTranslations(lang) {
-  const elements = document.querySelectorAll("[data-i18n]");
-  elements.forEach(el => {
-    const key = el.getAttribute("data-i18n");
-    if (translations[lang] && translations[lang][key]) {
-      el.textContent = translations[lang][key];
-    }
-  });
-
-  // Also re-translate width, height, and area
-  if (currentImageWidth && currentImageHeight) {
-    const t = translations[lang];
-    document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
-    document.getElementById("height").textContent = `${t.height} ${currentImageHeight}`;
-    document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
-  }
-}
-
+};    
 
 document.getElementById("lang-select").addEventListener("change", function () {
   const lang = this.value;
@@ -841,19 +854,8 @@ function showImageInfo(width, height) {
   document.getElementById("area").textContent = `${t.area} ${width * height} px`;
 }
 
-// Update translations and image info when language changes
-function applyTranslations(lang) {
-  const elements = document.querySelectorAll("[data-i18n]");
-  elements.forEach(el => {
-    const key = el.getAttribute("data-i18n");
-    if (translations[lang] && translations[lang][key]) {
-      el.textContent = translations[lang][key];
-    }
-  });
-
-  // Refresh width/height/area display
-  showImageInfo(currentImageWidth, currentImageHeight);
-}
+// Refresh width/height/area display
+showImageInfo(currentImageWidth, currentImageHeight);
 
 // Language selector change event
 document.getElementById("lang-select").addEventListener("change", function () {
@@ -897,3 +899,38 @@ upload.addEventListener('change', e => {
   };
   reader.readAsDataURL(file);
 });
+
+// Transparent button functionality
+document.getElementById('transparentButton').addEventListener('click', function () {
+  this.classList.toggle('active');
+  
+  updatePadraoFromActiveButtons();
+
+  if (originalImage) {
+    applyScale();
+    applyPreview();
+  }
+});
+
+function applyTranslations(lang) {
+  const elements = document.querySelectorAll("[data-i18n]");
+  elements.forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const titleKey = el.getAttribute('data-i18n-title');
+
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+
+    if (titleKey && translations[lang] && translations[lang][titleKey]) {
+      el.title = translations[lang][titleKey];
+    }
+  });
+   if (currentImageWidth && currentImageHeight) {
+    const t = translations[lang];
+    document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
+    document.getElementById("height").textContent = `${t.height} ${currentImageHeight}`;
+    document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
+  }
+  showImageInfo(currentImageWidth, currentImageHeight);
+}
