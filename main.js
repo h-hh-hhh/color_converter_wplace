@@ -226,12 +226,14 @@ function processarImagem() {
       if (document.getElementById('transparentButton').classList.contains('active')) {
         data[i + 3] = 0; // Make transparent if alpha is not fully opaque
       }
-      else { 
+      else {
         data[i + 3] = 255; // Keep fully opaque if button is not active
       }
     }
-    const key = `${nr},${ng},${nb}`;
-    colorCounts[key] = (colorCounts[key] || 0) + 1;
+    if (a !== 0) {
+      const key = `${nr},${ng},${nb}`;
+      colorCounts[key] = (colorCounts[key] || 0) + 1;
+    }
   }
   ctx.putImageData(imgData, 0, 0);
   downloadLink.href = canvas.toDataURL("image/png");
@@ -268,8 +270,8 @@ function showColorUsage(colorCounts) {
   let colorList = [];
   padrao.forEach(([r, g, b]) => {
     const key = `${r},${g},${b}`;
-    const count = colorCounts[key] || 0;
-    if (count === 0) return;
+    const count = colorCounts[key];
+    if (count === undefined) return;
     colorList.push({ r, g, b, count, name: colorNames[key] });
   });
   colorList.sort((a, b) => b.count - a.count);
@@ -342,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // Paid Colors
-     
+
 document.addEventListener('DOMContentLoaded', () => {
   const selectAllPaidBtn = document.getElementById('select-all-paid');
   if (!selectAllPaidBtn) {
@@ -504,6 +506,11 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.classList.add('active');
     }
   });
+
+  const transparentButton = document.getElementById('transparentButton');
+  if (localStorage.getItem('transparentHide') === 'true') {
+    transparentButton.classList.add('active');
+  }
 
   updatePadraoFromActiveButtons();
 
@@ -705,121 +712,121 @@ const translations = {
     transparentButtonTitle: "有効にすると、半透明ピクセルは完全に透明になり、無効にすると完全に不透明になります。"
   },
   pl: {
-  title: "Konwerter Kolorów Wplace",
-  freeColors: "Darmowe Kolory:",
-  paidColors: "Płatne Kolory (2000💧za sztukę):",
-  download: "Pobierz Obraz",
-  clipboard: "Kopiuj do Schowka",
-  goto: "Przejdź do Wplace",
-  pixelsAmount: "Liczba Pikseli:",
-  width: "Szerokość:",
-  height: "Wysokość:",
-  area: "Powierzchnia:",
-  imageCopied: "Obraz skopiowany do schowka!",
-  copyFailed: "Nie udało się skopiować obrazu.",
-  imageNotFound: "Nie znaleziono obrazu",
-  allButtonfreeSelect: "Zaznacz Wszystkie Darmowe Kolory",
-  allButtonfreeUnselect: "Odznacz Wszystkie Darmowe Kolory",
-  allButtonpaidSelect: "Zaznacz Wszystkie Płatne Kolory 💧",
-  allButtonpaidUnselect: "Odznacz Wszystkie Płatne Kolory 💧",
-  zoom: "Powiększenie",
-  scale: "Skala",
-  transparentButton: "Ukryj półprzezroczyste piksele",
-  transparentButtonTitle: "Gdy aktywne, półprzezroczyste piksele będą całkowicie przezroczyste, w przeciwnym razie będą całkowicie nieprzezroczyste."
-},
-de_CH: {
-  title: "Wplace Farbkonverter",
-  freeColors: "Kostenlose Farben:",
-  paidColors: "Bezahlte Farben (2000💧 pro Farbe):",
-  download: "Bild herunterladen",
-  clipboard: "In die Zwischenablage kopieren",
-  goto: "Zu Wplace gehen",
-  pixelsAmount: "Pixelanzahl:",
-  width: "Breite:",
-  height: "Höhe:",
-  area: "Fläche:",
-  imageCopied: "Bild in Zwischenablage kopiert!",
-  copyFailed: "Bild konnte nicht kopiert werden.",
-  imageNotFound: "Bild nicht gefunden",
-  allButtonfreeSelect: "Alle kostenlosen Farben auswählen",
-  allButtonfreeUnselect: "Alle kostenlosen Farben abwählen",
-  allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
-  allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
-  zoom: "Zoom",
-  scale: "Massstab",
-  transparentButton: "Halbtransparente Pixel ausblenden",
-  transparentButtonTitle: "Wenn aktiv, werden halbtransparente Pixel vollständig transparent, andernfalls vollständig undurchsichtig."
-},
-nl: {
-  title: "Wplace Kleurconverter",
-  freeColors: "Gratis kleuren:",
-  paidColors: "Betaalde kleuren (2000💧 per stuk):",
-  download: "Afbeelding downloaden",
-  clipboard: "Kopiëren naar klembord",
-  goto: "Ga naar Wplace",
-  pixelsAmount: "Aantal pixels:",
-  width: "Breedte:",
-  height: "Hoogte:",
-  area: "Oppervlakte:",
-  imageCopied: "Afbeelding gekopieerd naar klembord!",
-  copyFailed: "Afbeelding kopiëren mislukt.",
-  imageNotFound: "Afbeelding niet gevonden",
-  allButtonfreeSelect: "Selecteer alle gratis kleuren",
-  allButtonfreeUnselect: "Deselecteer alle gratis kleuren",
-  allButtonpaidSelect: "Selecteer alle 💧betaalde kleuren",
-  allButtonpaidUnselect: "Deselecteer alle 💧betaalde kleuren",
-  zoom: "Zoom",
-  scale: "Schaal",
-  transparentButton: "Verberg half-transparante pixels",
-  transparentButtonTitle: "Wanneer ingeschakeld, worden half-transparante pixels volledig transparant, anders blijven ze volledig ondoorzichtig."
-},
-ru: {
-  title: "Конвертер цветов Wplace",
-  freeColors: "Бесплатные цвета:",
-  paidColors: "Платные цвета (2000💧 за каждый):",
-  download: "Скачать изображение",
-  clipboard: "Копировать в буфер обмена",
-  goto: "Перейти на Wplace",
-  pixelsAmount: "Количество пикселей:",
-  width: "Ширина:",
-  height: "Высота:",
-  area: "Площадь:",
-  imageCopied: "Изображение скопировано в буфер обмена!",
-  copyFailed: "Не удалось скопировать изображение.",
-  imageNotFound: "Изображение не найдено",
-  allButtonfreeSelect: "Выбрать все бесплатные цвета",
-  allButtonfreeUnselect: "Снять выбор со всех бесплатных цветов",
-  allButtonpaidSelect: "Выбрать все 💧платные цвета",
-  allButtonpaidUnselect: "Снять выбор со всех 💧платных цветов",
-  zoom: "Зум",
-  scale: "Масштаб",
-  transparentButton: "Скрыть полупрозрачные пиксели",
-  transparentButtonTitle: "Когда включено, полупрозрачные пиксели становятся полностью прозрачными, иначе они остаются полностью непрозрачными."
-},
-tr: {
-  title: "Wplace Renk Dönüştürücü",
-  freeColors: "Ücretsiz Renkler:",
-  paidColors: "Ücretli Renkler (Her biri 2000💧):",
-  download: "Görseli İndir",
-  clipboard: "Panoya Kopyala",
-  goto: "Wplace'e Git",
-  pixelsAmount: "Piksel Sayısı:",
-  width: "Genişlik:",
-  height: "Yükseklik:",
-  area: "Alan:",
-  imageCopied: "Görsel panoya kopyalandı!",
-  copyFailed: "Resim kopyalanamadı.",
-  imageNotFound: "Görsel bulunamadı",
-  allButtonfreeSelect: "Tüm Ücretsiz Renkleri Seç",
-  allButtonfreeUnselect: "Tüm Ücretsiz Renklerin Seçimini Kaldır",
-  allButtonpaidSelect: "Tüm 💧Ücretli Renkleri Seç",
-  allButtonpaidUnselect: "Tüm 💧Ücretli Renklerin Seçimini Kaldır",
-  zoom: "Yakınlaştır",
-  scale: "Ölçek",
-  transparentButton: "Yarı saydam pikselleri gizle",
-  transparentButtonTitle: "Aktif olduğunda, yarı saydam pikseller tamamen saydam hale gelir, aksi takdirde tamamen opak kalır."
+    title: "Konwerter Kolorów Wplace",
+    freeColors: "Darmowe Kolory:",
+    paidColors: "Płatne Kolory (2000💧za sztukę):",
+    download: "Pobierz Obraz",
+    clipboard: "Kopiuj do Schowka",
+    goto: "Przejdź do Wplace",
+    pixelsAmount: "Liczba Pikseli:",
+    width: "Szerokość:",
+    height: "Wysokość:",
+    area: "Powierzchnia:",
+    imageCopied: "Obraz skopiowany do schowka!",
+    copyFailed: "Nie udało się skopiować obrazu.",
+    imageNotFound: "Nie znaleziono obrazu",
+    allButtonfreeSelect: "Zaznacz Wszystkie Darmowe Kolory",
+    allButtonfreeUnselect: "Odznacz Wszystkie Darmowe Kolory",
+    allButtonpaidSelect: "Zaznacz Wszystkie Płatne Kolory 💧",
+    allButtonpaidUnselect: "Odznacz Wszystkie Płatne Kolory 💧",
+    zoom: "Powiększenie",
+    scale: "Skala",
+    transparentButton: "Ukryj półprzezroczyste piksele",
+    transparentButtonTitle: "Gdy aktywne, półprzezroczyste piksele będą całkowicie przezroczyste, w przeciwnym razie będą całkowicie nieprzezroczyste."
+  },
+  de_CH: {
+    title: "Wplace Farbkonverter",
+    freeColors: "Kostenlose Farben:",
+    paidColors: "Bezahlte Farben (2000💧 pro Farbe):",
+    download: "Bild herunterladen",
+    clipboard: "In die Zwischenablage kopieren",
+    goto: "Zu Wplace gehen",
+    pixelsAmount: "Pixelanzahl:",
+    width: "Breite:",
+    height: "Höhe:",
+    area: "Fläche:",
+    imageCopied: "Bild in Zwischenablage kopiert!",
+    copyFailed: "Bild konnte nicht kopiert werden.",
+    imageNotFound: "Bild nicht gefunden",
+    allButtonfreeSelect: "Alle kostenlosen Farben auswählen",
+    allButtonfreeUnselect: "Alle kostenlosen Farben abwählen",
+    allButtonpaidSelect: "Alle 💧bezahlten Farben auswählen",
+    allButtonpaidUnselect: "Alle 💧bezahlten Farben abwählen",
+    zoom: "Zoom",
+    scale: "Massstab",
+    transparentButton: "Halbtransparente Pixel ausblenden",
+    transparentButtonTitle: "Wenn aktiv, werden halbtransparente Pixel vollständig transparent, andernfalls vollständig undurchsichtig."
+  },
+  nl: {
+    title: "Wplace Kleurconverter",
+    freeColors: "Gratis kleuren:",
+    paidColors: "Betaalde kleuren (2000💧 per stuk):",
+    download: "Afbeelding downloaden",
+    clipboard: "Kopiëren naar klembord",
+    goto: "Ga naar Wplace",
+    pixelsAmount: "Aantal pixels:",
+    width: "Breedte:",
+    height: "Hoogte:",
+    area: "Oppervlakte:",
+    imageCopied: "Afbeelding gekopieerd naar klembord!",
+    copyFailed: "Afbeelding kopiëren mislukt.",
+    imageNotFound: "Afbeelding niet gevonden",
+    allButtonfreeSelect: "Selecteer alle gratis kleuren",
+    allButtonfreeUnselect: "Deselecteer alle gratis kleuren",
+    allButtonpaidSelect: "Selecteer alle 💧betaalde kleuren",
+    allButtonpaidUnselect: "Deselecteer alle 💧betaalde kleuren",
+    zoom: "Zoom",
+    scale: "Schaal",
+    transparentButton: "Verberg half-transparante pixels",
+    transparentButtonTitle: "Wanneer ingeschakeld, worden half-transparante pixels volledig transparant, anders blijven ze volledig ondoorzichtig."
+  },
+  ru: {
+    title: "Конвертер цветов Wplace",
+    freeColors: "Бесплатные цвета:",
+    paidColors: "Платные цвета (2000💧 за каждый):",
+    download: "Скачать изображение",
+    clipboard: "Копировать в буфер обмена",
+    goto: "Перейти на Wplace",
+    pixelsAmount: "Количество пикселей:",
+    width: "Ширина:",
+    height: "Высота:",
+    area: "Площадь:",
+    imageCopied: "Изображение скопировано в буфер обмена!",
+    copyFailed: "Не удалось скопировать изображение.",
+    imageNotFound: "Изображение не найдено",
+    allButtonfreeSelect: "Выбрать все бесплатные цвета",
+    allButtonfreeUnselect: "Снять выбор со всех бесплатных цветов",
+    allButtonpaidSelect: "Выбрать все 💧платные цвета",
+    allButtonpaidUnselect: "Снять выбор со всех 💧платных цветов",
+    zoom: "Зум",
+    scale: "Масштаб",
+    transparentButton: "Скрыть полупрозрачные пиксели",
+    transparentButtonTitle: "Когда включено, полупрозрачные пиксели становятся полностью прозрачными, иначе они остаются полностью непрозрачными."
+  },
+  tr: {
+    title: "Wplace Renk Dönüştürücü",
+    freeColors: "Ücretsiz Renkler:",
+    paidColors: "Ücretli Renkler (Her biri 2000💧):",
+    download: "Görseli İndir",
+    clipboard: "Panoya Kopyala",
+    goto: "Wplace'e Git",
+    pixelsAmount: "Piksel Sayısı:",
+    width: "Genişlik:",
+    height: "Yükseklik:",
+    area: "Alan:",
+    imageCopied: "Görsel panoya kopyalandı!",
+    copyFailed: "Resim kopyalanamadı.",
+    imageNotFound: "Görsel bulunamadı",
+    allButtonfreeSelect: "Tüm Ücretsiz Renkleri Seç",
+    allButtonfreeUnselect: "Tüm Ücretsiz Renklerin Seçimini Kaldır",
+    allButtonpaidSelect: "Tüm 💧Ücretli Renkleri Seç",
+    allButtonpaidUnselect: "Tüm 💧Ücretli Renklerin Seçimini Kaldır",
+    zoom: "Yakınlaştır",
+    scale: "Ölçek",
+    transparentButton: "Yarı saydam pikselleri gizle",
+    transparentButtonTitle: "Aktif olduğunda, yarı saydam pikseller tamamen saydam hale gelir, aksi takdirde tamamen opak kalır."
   }
-};    
+};
 
 document.getElementById("lang-select").addEventListener("change", function () {
   const lang = this.value;
@@ -903,7 +910,8 @@ upload.addEventListener('change', e => {
 // Transparent button functionality
 document.getElementById('transparentButton').addEventListener('click', function () {
   this.classList.toggle('active');
-  
+  localStorage.setItem('transparentHide', this.classList.contains('active'));
+
   updatePadraoFromActiveButtons();
 
   if (originalImage) {
@@ -926,7 +934,7 @@ function applyTranslations(lang) {
       el.title = translations[lang][titleKey];
     }
   });
-   if (currentImageWidth && currentImageHeight) {
+  if (currentImageWidth && currentImageHeight) {
     const t = translations[lang];
     document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
     document.getElementById("height").textContent = `${t.height} ${currentImageHeight}`;
