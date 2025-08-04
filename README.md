@@ -9,6 +9,8 @@
   <br>
   Adapted to website by ATLAS
   <br>
+  Contributor: Autergame
+  <br>
   Github manager and marketer: PEPOAFONSO
   <br>
   Motivational helper: kromck
