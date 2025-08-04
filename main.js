@@ -828,22 +828,48 @@ const translations = {
   }
 };
 
+// Language selector change event
 document.getElementById("lang-select").addEventListener("change", function () {
   const lang = this.value;
   applyTranslations(lang);
   localStorage.setItem("lang", lang);
 });
 
-// Load saved language on page load
+// Load saved or detected language on page load
 document.addEventListener("DOMContentLoaded", () => {
-  const savedLang = localStorage.getItem("lang") || "en";
+  let savedLang = localStorage.getItem("lang");
+  console.log("Language applied to site:", savedLang);
+
+  if (!savedLang) {
+    // Detect browser language
+    let browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    console.log("Browser language detected:", browserLang);
+
+    // First try full match (e.g. "pt-BR")
+    if (translations[browserLang]) {
+      savedLang = browserLang;
+    } else {
+      // Then try first two letters (e.g. "pt-BR" → "pt")
+      let shortLang = browserLang.split("-")[0];
+      if (translations[shortLang]) {
+        savedLang = shortLang;
+      } else {
+        // Default to English if not found
+        savedLang = "en";
+      }
+    }
+  }
+
+  // Apply language and store it
   document.getElementById("lang-select").value = savedLang;
   applyTranslations(savedLang);
+  localStorage.setItem("lang", savedLang);
 });
 
-// Global variables for image size:
+// Global variables for image size
 let currentImageWidth = null;
 let currentImageHeight = null;
+let fileName = "";
 
 // Helper to get current language from selector
 function getCurrentLang() {
@@ -864,22 +890,6 @@ function showImageInfo(width, height) {
 // Refresh width/height/area display
 showImageInfo(currentImageWidth, currentImageHeight);
 
-// Language selector change event
-document.getElementById("lang-select").addEventListener("change", function () {
-  const lang = this.value;
-  applyTranslations(lang);
-  localStorage.setItem("lang", lang);
-});
-
-// On page load, load saved language and apply it
-document.addEventListener("DOMContentLoaded", () => {
-  const savedLang = localStorage.getItem("lang") || "en";
-  document.getElementById("lang-select").value = savedLang;
-  applyTranslations(savedLang);
-});
-
-let fileName = "";
-
 // When loading an image, update the global size variables
 upload.addEventListener('change', e => {
   const file = e.target.files[0];
@@ -890,7 +900,6 @@ upload.addEventListener('change', e => {
     const img = new Image();
     img.onload = () => {
       originalImage = img;
-
       currentImageWidth = img.width;
       currentImageHeight = img.height;
 
@@ -920,6 +929,7 @@ document.getElementById('transparentButton').addEventListener('click', function 
   }
 });
 
+// Apply translations to all elements with data-i18n
 function applyTranslations(lang) {
   const elements = document.querySelectorAll("[data-i18n]");
   elements.forEach(el => {
@@ -934,11 +944,13 @@ function applyTranslations(lang) {
       el.title = translations[lang][titleKey];
     }
   });
+
   if (currentImageWidth && currentImageHeight) {
     const t = translations[lang];
     document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
     document.getElementById("height").textContent = `${t.height} ${currentImageHeight}`;
     document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
   }
+
   showImageInfo(currentImageWidth, currentImageHeight);
 }
