@@ -78,6 +78,43 @@ const colorNames = {
   "179,185,209": "Light Slate",
 };
 
+// Used for displaying different colors in color list
+const paidColors = new Set([
+  "170,170,170",    // Medium Gray
+  "165,14,30",      // Dark Red
+  "250,128,114",    // Light Red
+  "228,92,26",      // Dark Orange
+  "156,132,49",     // Dark Goldenrod
+  "197,173,49",     // Goldenrod
+  "232,212,95",     // Light Goldenrod
+  "74,107,58",      // Dark Olive
+  "90,148,74",      // Olive
+  "132,197,115",    // Light Olive
+  "15,121,159",     // Dark Cyan
+  "187,250,242",    // Light Cyan
+  "125,199,255",    // Light Blue
+  "77,49,184",      // Dark Indigo
+  "74,66,132",      // Dark Slate Blue
+  "122,113,196",    // Slate Blue
+  "181,174,241",    // Light Slate Blue
+  "155,82,73",      // Dark Peach
+  "209,128,120",    // Peach
+  "250,182,164",    // Light Peach
+  "219,164,99",     // Light Brown
+  "123,99,82",      // Dark Tan
+  "156,132,107",    // Tan
+  "214,181,148",    // Light Tan
+  "209,128,81",     // Dark Beige
+  "255,197,165",    // Light Beige
+  "109,100,63",     // Dark Stone
+  "148,140,107",    // Stone
+  "205,197,158",    // Light Stone
+  "51,57,65",       // Dark Slate
+  "109,117,141",    // Slate
+  "179,185,209",    // Light Slate
+]);
+
+
 let padrao = [];
 
 function updatePadraoFromActiveButtons() {
@@ -280,10 +317,14 @@ function showColorUsage(colorCounts) {
   if (!colorListDiv) return;
   colorListDiv.innerHTML = '';
   colorList.forEach(({ r, g, b, count, name }) => {
+    const key = `${r},${g},${b}`;
+    const isPaid = paidColors.has(key);
+
     const colorItem = document.createElement('div');
     colorItem.style.display = 'flex';
     colorItem.style.alignItems = 'center';
     colorItem.style.marginBottom = '4px';
+
     const swatch = document.createElement('span');
     swatch.style.display = 'inline-block';
     swatch.style.width = '24px';
@@ -291,16 +332,19 @@ function showColorUsage(colorCounts) {
     swatch.style.background = `rgb(${r},${g},${b})`;
     swatch.style.border = '1px solid #ccc';
     swatch.style.marginRight = '8px';
+
     const label = document.createElement('span');
     const colorName = name || `rgb(${r}, ${g}, ${b})`;
     label.textContent = `${colorName}: ${count} px`;
+    if (isPaid) label.style.color = 'gold';
+
     colorItem.appendChild(swatch);
     colorItem.appendChild(label);
     colorListDiv.appendChild(colorItem);
   });
 }
 
-// --- Script for buttons ---
+// --- Script for select All buttons ---
 
 document.addEventListener('DOMContentLoaded', () => {
   const selectAllFreeBtn = document.getElementById('unselect-all-free');
