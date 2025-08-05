@@ -992,11 +992,6 @@ console.log(document.getElementById("meta-og-title"));
     document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
   }
 
-  // Update meta tags
-  if (translations[lang] && translations[lang].title) {
-  document.title = translations[lang].title;
-  }
-
   // Call any additional UI update
   showImageInfo(currentImageWidth, currentImageHeight);
 }
