@@ -592,7 +592,7 @@ const translations = {
     zoom: "Zoom",
     scale: "Scale",
     transparentButton: "Hide Semi-Transparent Pixels",
-    transparentButtonTitle: "When active, semi-transparent pixels will be made fully transparent, otherwise they will be fully opaque."
+    transparentButtonTitle: "When active, semi-transparent pixels will be made fully transparent, otherwise they will be fully opaque.",
   },
   pt: {
     title: "Conversor de Cores Wplace",
@@ -615,7 +615,7 @@ const translations = {
     zoom: "Zoom",
     scale: "Escala",
     transparentButton: "Ocultar Pixels Semitransparentes",
-    transparentButtonTitle: "Remover Pixels Semitransparentes"
+    transparentButtonTitle: "Remover Pixels Semitransparentes",
   },
   de: {
     title: "Wplace Farbkonverter",
@@ -973,22 +973,18 @@ document.getElementById('transparentButton').addEventListener('click', function 
   }
 });
 
-// Apply translations to all elements with data-i18n
 function applyTranslations(lang) {
-  const elements = document.querySelectorAll("[data-i18n]");
-  elements.forEach(el => {
+console.log(document.getElementById("meta-og-title"));
+  // Update visible elements
+  document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     const titleKey = el.getAttribute('data-i18n-title');
 
-    if (translations[lang] && translations[lang][key]) {
-      el.textContent = translations[lang][key];
-    }
-
-    if (titleKey && translations[lang] && translations[lang][titleKey]) {
-      el.title = translations[lang][titleKey];
-    }
+    if (translations[lang]?.[key]) el.textContent = translations[lang][key];
+    if (titleKey && translations[lang]?.[titleKey]) el.title = translations[lang][titleKey];
   });
 
+  // Update dynamic info if present
   if (currentImageWidth && currentImageHeight) {
     const t = translations[lang];
     document.getElementById("width").textContent = `${t.width} ${currentImageWidth}`;
@@ -996,5 +992,12 @@ function applyTranslations(lang) {
     document.getElementById("area").textContent = `${t.area} ${currentImageWidth * currentImageHeight}`;
   }
 
+  // Update meta tags
+  if (translations[lang] && translations[lang].title) {
+  document.title = translations[lang].title;
+  }
+
+  // Call any additional UI update
   showImageInfo(currentImageWidth, currentImageHeight);
 }
+
