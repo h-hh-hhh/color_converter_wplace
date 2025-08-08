@@ -5,13 +5,13 @@
 <br>
 <h2>Credits:</h2>
 <div>
+  Main developer: PEPOAFONSO
+  <br>
   Original code Created by PONTOGAMER
   <br>
-  Adapted to website by ATLAS
+  Adaptation to website: ATLAS
   <br>
   Contributor: Autergame
-  <br>
-  Github manager and marketer: PEPOAFONSO
   <br>
   Motivational helper: kromck
 </div>
