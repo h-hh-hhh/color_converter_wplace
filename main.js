@@ -1062,42 +1062,73 @@ const translations = {
 };
 
 // Language selector change event
-document.getElementById("lang-select").addEventListener("change", function () {
-  const lang = this.value;
-  applyTranslations(lang);
-  localStorage.setItem("lang", lang);
-});
-
-// Load saved or detected language on page load
 document.addEventListener("DOMContentLoaded", () => {
-  let savedLang = localStorage.getItem("lang");
-  console.log("Language applied to site:", savedLang);
+  const parts = window.location.pathname.split("/").filter(Boolean);
 
-  if (!savedLang) {
-    // Detect browser language
-    let browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
-    console.log("Browser language detected:", browserLang);
-
-    // First try full match (e.g. "pt-BR")
-    if (translations[browserLang]) {
-      savedLang = browserLang;
-    } else {
-      // Then try first two letters (e.g. "pt-BR" → "pt")
-      let shortLang = browserLang.split("-")[0];
-      if (translations[shortLang]) {
-        savedLang = shortLang;
-      } else {
-        // Default to English if not found
-        savedLang = "en";
-      }
+  // A) repoName vs local‐mode
+  let repoName = "", currentPathLang = "en";
+  if (translations[parts[0]]) {
+    currentPathLang = parts[0];               // local: "/de/"
+  } else {
+    repoName = parts[0] || "";                
+    if (translations[parts[1]]) {
+      currentPathLang = parts[1];             // pages: "/repoName/de/"
     }
   }
+  const base = repoName ? `/${repoName}` : "";
 
-  // Apply language and store it
-  document.getElementById("lang-select").value = savedLang;
-  applyTranslations(savedLang);
-  localStorage.setItem("lang", savedLang);
+  // B) Grab savedLang _before_ any detection
+  const savedLang = localStorage.getItem("lang");
+
+  // C) Load or detect (but don’t overwrite savedLang yet)
+  let lang = savedLang;
+  if (!lang) {
+    const nav = (navigator.language || "en").toLowerCase();
+    lang = translations[nav]
+      ? nav
+      : translations[nav.split("-")[0]]
+        ? nav.split("-")[0]
+        : "en";
+    // now persist it
+    localStorage.setItem("lang", lang);
+  }
+
+  // D) **Only** honor the URL if there _was_ a savedLang (i.e. the user had explicitly chosen before)
+  const manuallyNavigated =
+    (!repoName && translations[parts[0]]) ||
+    (repoName  && translations[parts[1]]);
+  if (savedLang && manuallyNavigated) {
+    lang = currentPathLang;
+    localStorage.setItem("lang", lang);
+  }
+
+  // E) If our final lang ≠ the URL, redirect to the correct one
+  if (currentPathLang !== lang) {
+    const dest = lang === "en"
+      ? `${base}/`
+      : `${base}/${lang}/`;
+    window.location.replace(window.location.origin + dest);
+    return;
+  }
+
+  // F) Wire up the selector
+  const select = document.getElementById("lang-select");
+  if (select) {
+    select.value = lang;
+    select.addEventListener("change", () => {
+      const chosen = select.value;
+      localStorage.setItem("lang", chosen);
+      const target = chosen === "en"
+        ? `${base}/`
+        : `${base}/${chosen}/`;
+      window.location.href = window.location.origin + target;
+    });
+  }
+
+  // G) Finally, apply in‐page translations
+  applyTranslations(lang);
 });
+
 
 // Global variables for image size
 let currentImageWidth = null;

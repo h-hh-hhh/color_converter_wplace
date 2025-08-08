@@ -189,6 +189,7 @@ input[type="file"]:hover {
   margin: 7px 7px 7px 0;
   border: 3px solid #222;
   box-shadow: 0 2px 8px #0006;
+  background-color: #000;
   font-weight: 600;
   transition: border 0.2s, box-shadow 0.2s, transform 0.2s;
   outline: none;
