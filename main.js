@@ -137,7 +137,7 @@ function updatePadraoFromActiveButtons() {
 
 const upload = document.getElementById('upload');
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const downloadLink = document.getElementById('download');
 
 // Clipboard
@@ -290,17 +290,22 @@ function processarImagem() {
 // Image info display
 function showImageInfo(width, height) {
   const langSelect = document.getElementById('lang-select');
-  const lang = (langSelect && langSelect.value) || 'en';
-  const t = translations[lang];
+  const lang       = (langSelect && langSelect.value) || 'en';
+  const t          = translations[lang];
 
-  const widthP = document.getElementById('width');
-  const heightP = document.getElementById('height');
-  const areaP = document.getElementById('area');
+// grab the new fields
+const widthInput  = document.getElementById('widthInput');
+const heightInput = document.getElementById('heightInput');
 
-  if (widthP) widthP.textContent = `${t.width} ${width} px`;
-  if (heightP) heightP.textContent = `${t.height} ${height} px`;
-  if (areaP) areaP.textContent = `${t.area} ${width * height} px`;
+// only write if they actually exist
+if (widthInput) {
+  widthInput.value = width;
 }
+if (heightInput) {
+  heightInput.value = height;
+}
+}
+
 
 // Color usage display
 function showColorUsage(colorCounts) {
@@ -347,128 +352,297 @@ function showColorUsage(colorCounts) {
 // --- Script for select All buttons ---
 
 document.addEventListener('DOMContentLoaded', () => {
-  const selectAllFreeBtn = document.getElementById('unselect-all-free');
-  if (!selectAllFreeBtn) {
-    console.error('select-all-free button not found');
-    return;
+  const masterBtn    = document.getElementById('unselect-all-free');
+  const freeButtons  = Array.from(document.querySelectorAll(
+    'button.toggle-color[data-type="free"]:not(#unselect-all-free)'
+  ));
+
+  function t(key) {
+    const lang = getCurrentLang();
+    return (translations[lang] || translations.en)[key];
   }
 
-  const lang = getCurrentLang();
-  const t = translations[lang] || translations['en'];
+  function updateMasterLabel() {
+    const allActive = freeButtons.every(b => b.classList.contains('active'));
+    masterBtn.textContent = allActive
+      ? t('allButtonfreeUnselect')
+      : t('allButtonfreeSelect');
+  }
 
-  // Start with all free buttons selected
-  const freeButtons = document.querySelectorAll('#colors .toggle-color[data-type="free"]');
-  freeButtons.forEach(btn => btn.classList.add('active'));
-  selectAllFreeBtn.textContent = t.allButtonfreeUnselect;
+  function saveActiveColors() {
+    const activeIds = freeButtons
+      .filter(b => b.classList.contains('active'))
+      .map(b => b.id);
+    localStorage.setItem('activeColors', JSON.stringify(activeIds));
+  }
 
-  selectAllFreeBtn.addEventListener('click', () => {
-    const lang = getCurrentLang();
-    const t = translations[lang] || translations['en'];
-
-    const isCurrentlySelected = selectAllFreeBtn.textContent === t.allButtonfreeUnselect;
-
-    if (isCurrentlySelected) {
-      freeButtons.forEach(btn => btn.classList.remove('active'));
-      selectAllFreeBtn.textContent = t.allButtonfreeSelect;
-    } else {
-      freeButtons.forEach(btn => btn.classList.add('active'));
-      selectAllFreeBtn.textContent = t.allButtonfreeUnselect;
+  // -- LOAD STATE --
+  const raw = localStorage.getItem('activeColors');
+  let saved = [];
+  if (raw !== null) {
+    try {
+      saved = JSON.parse(raw);
+    } catch(e) {
+      console.warn('couldn’t parse saved colors:', raw);
     }
+  }
 
-    if (typeof updatePadraoFromActiveButtons === 'function') {
-      updatePadraoFromActiveButtons();
-    }
+  // apply saved (even if saved = [])
+  freeButtons.forEach(b =>
+    b.classList.toggle('active', raw !== null ? saved.includes(b.id) : true)
+  );
 
-    if (typeof originalImage !== 'undefined' && originalImage) {
-      if (typeof applyScale === 'function') applyScale();
-      if (typeof applyPreview === 'function') applyPreview();
+  // force-refresh the master button text now that classes are set
+  window.addEventListener('load', () => {
+  updateMasterLabel();
+});
+
+  // now do your initial drawing
+  updatePadraoFromActiveButtons();
+
+  // ——— WIRING UP THE CLICK HANDLERS ———
+  freeButtons.forEach(b => {
+    b.addEventListener('click', () => {
+      setTimeout(() => {
+        updateMasterLabel();
+        saveActiveColors();
+        updatePadraoFromActiveButtons();
+        if (originalImage) {
+          applyScale?.();
+          applyPreview?.();
+        }
+      }, 0);
+    });
+  });
+
+  masterBtn.addEventListener('click', () => {
+    const allActive = freeButtons.every(b => b.classList.contains('active'));
+    freeButtons.forEach(b => b.classList.toggle('active', !allActive));
+
+    updateMasterLabel();
+    saveActiveColors();
+    updatePadraoFromActiveButtons();
+    if (originalImage) {
+      applyScale?.();
+      applyPreview?.();
     }
   });
 });
 
-
 // Paid Colors
 
 document.addEventListener('DOMContentLoaded', () => {
-  const selectAllPaidBtn = document.getElementById('select-all-paid');
-  if (!selectAllPaidBtn) {
+  const masterBtn   = document.getElementById('select-all-paid');
+  const paidButtons = Array.from(
+    document.querySelectorAll(
+      '#colors button.toggle-color[data-type="paid"]:not(#select-all-paid)'
+    )
+  );
+  if (!masterBtn) {
     console.error('select-all-paid button not found');
     return;
   }
 
-  let isAllPaidSelected = false;
+  // translation helper
+  function t(key) {
+    const lang = getCurrentLang();
+    return (translations[lang] || translations.en)[key];
+  }
 
-  const lang = getCurrentLang();
-  const t = translations[lang] || translations['en'];
+  // Set the master button label based on whether *all* paid buttons are active
+  function updateMasterLabel() {
+    const allActive = paidButtons.every(b => b.classList.contains('active'));
+    masterBtn.textContent = allActive
+      ? t('allButtonpaidUnselect')
+      : t('allButtonpaidSelect');
+  }
 
-  selectAllPaidBtn.textContent = t.allButtonpaidSelect;
+  // Persist the IDs of whichever paid buttons are active
+  function saveActivePaidColors() {
+    const activeIds = paidButtons
+      .filter(b => b.classList.contains('active'))
+      .map(b => b.id);
+    localStorage.setItem(
+      'activePaidColors',
+      JSON.stringify(activeIds)
+    );
+  }
 
-  selectAllPaidBtn.addEventListener('click', () => {
-    const paidButtons = document.querySelectorAll('#colors .toggle-color[data-type="paid"]');
-    isAllPaidSelected = !isAllPaidSelected;
-
-    paidButtons.forEach(btn => {
-      btn.classList.toggle('active', isAllPaidSelected);
-    });
-
-    const currentLang = getCurrentLang();
-    const tt = translations[currentLang] || translations['en'];
-
-    selectAllPaidBtn.textContent = isAllPaidSelected
-      ? tt.allButtonpaidUnselect
-      : tt.allButtonpaidSelect;
-
-    if (typeof updatePadraoFromActiveButtons === 'function') {
-      updatePadraoFromActiveButtons();
+  // -- LOAD STATE --
+  const rawPaid = localStorage.getItem('activePaidColors');
+  let savedPaid = [];
+  if (rawPaid !== null) {
+    try {
+      savedPaid = JSON.parse(rawPaid);
+    } catch (e) {
+      console.warn('Could not parse activePaidColors:', rawPaid);
     }
+  }
 
-    if (typeof originalImage !== 'undefined' && originalImage) {
-      if (typeof applyScale === 'function') applyScale();
-      if (typeof applyPreview === 'function') applyPreview();
+  // If we have a saved array (even if empty), honor it; otherwise default *all off*
+  paidButtons.forEach(btn => {
+    const shouldBeActive = rawPaid !== null && savedPaid.includes(btn.id);
+    btn.classList.toggle('active', shouldBeActive);
+  });
+
+  // — ensure the master label is correct *after* any HTML fallback runs
+  setTimeout(updateMasterLabel, 0);
+
+  updatePadraoFromActiveButtons();
+
+  // -- WIRING UP THE CLICK HANDLERS --
+
+  // Clicking ANY paid-button individually…
+  paidButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTimeout(() => {
+        updateMasterLabel();
+        saveActivePaidColors();
+        updatePadraoFromActiveButtons();
+        if (originalImage) {
+          applyScale?.();
+          applyPreview?.();
+        }
+      }, 0);
+    });
+  });
+
+  // Clicking the master “select/unselect all paid”
+  masterBtn.addEventListener('click', () => {
+    const allActive = paidButtons.every(b => b.classList.contains('active'));
+    paidButtons.forEach(b =>
+      b.classList.toggle('active', !allActive)
+    );
+
+    updateMasterLabel();
+    saveActivePaidColors();
+    updatePadraoFromActiveButtons();
+    if (originalImage) {
+      applyScale?.();
+      applyPreview?.();
     }
   });
 });
 // --End of Script for buttons--
 
-// Scale and Zoom functionality
-const scaleRange = document.getElementById('scaleRange');
-const scaleValue = document.getElementById('scaleValue');
-const zoomRange = document.getElementById('zoomRange');
-const zoomValue = document.getElementById('zoomValue');
+// Scale, Zoom, and Dimension functionality
+const scaleRange   = document.getElementById('scaleRange');
+const scaleValue   = document.getElementById('scaleValue');
+const zoomRange    = document.getElementById('zoomRange');
+const zoomValue    = document.getElementById('zoomValue');
 
-scaleRange.addEventListener('input', function () {
+let originalImage     = null;
+let scaledCanvas      = null;
+let scaledCtx         = null;
+let processedCanvas   = null;
+let processedCtx      = null;
+
+// Utility: initialize width/height fields when a new image loads
+function initDimensions() {
+  if (!originalImage) return;
+  widthInput.value  = originalImage.width;
+  heightInput.value = originalImage.height;
+}
+
+// Update only the display text of scale/zoom sliders
+scaleRange.addEventListener('input', () => {
   scaleValue.textContent = parseFloat(scaleRange.value).toFixed(2) + 'x';
 });
-
-zoomRange.addEventListener('input', function () {
+zoomRange.addEventListener('input', () => {
+  // update the label
   zoomValue.textContent = parseFloat(zoomRange.value).toFixed(2) + 'x';
+  // and call the preview
   applyPreview();
 });
 
-let originalImage = null;
-let scaledCanvas = null;
-let scaledCtx = null;
-let processedCanvas = null;
-let processedCtx = null;
 
+// When user types a new width
+widthInput.addEventListener('input', () => {
+  if (!originalImage) return;
+
+  // 1) parse and clamp width
+  const rawW = parseInt(widthInput.value, 10) || 0;
+  const maxScale = parseFloat(scaleRange.max);                // e.g. 5
+  const maxW = Math.round(originalImage.width * maxScale);    // maximum allowed width
+  const newW = Math.min(Math.max(rawW, 1), maxW);              // clamp to [1, maxW]
+
+  // 2) write back the clamped value so the user sees it
+  widthInput.value = newW;
+
+  // 3) compute the scale and corresponding height
+  const scale = newW / originalImage.width;
+  const newH  = Math.round(originalImage.height * scale);
+
+  // 4) sync other controls
+  heightInput.value      = newH;
+  scaleRange.value       = scale.toFixed(2);
+  scaleValue.textContent = scale.toFixed(2) + 'x';
+
+  // 5) redraw
+  applyScale();
+  applyPreview();
+});
+
+
+// When user types a new height
+heightInput.addEventListener('input', () => {
+  if (!originalImage) return;
+
+  // 1) parse and clamp height
+  const rawH = parseInt(heightInput.value, 10) || 0;
+  const maxScale = parseFloat(scaleRange.max);                 // e.g. 5
+  const maxH = Math.round(originalImage.height * maxScale);    // maximum allowed height
+  const newH = Math.min(Math.max(rawH, 1), maxH);              // clamp to [1, maxH]
+
+  // 2) write back the clamped value so the user sees it
+  heightInput.value = newH;
+
+  // 3) compute the scale and corresponding width
+  const scale = newH / originalImage.height;
+  const newW  = Math.round(originalImage.width * scale);
+
+  // 4) sync other controls
+  widthInput.value       = newW;
+  scaleRange.value       = scale.toFixed(2);
+  scaleValue.textContent = scale.toFixed(2) + 'x';
+
+  // 5) redraw
+  applyScale();
+  applyPreview();
+});
+
+// Core: scale the original image into a temp canvas and draw it
 function applyScale() {
   const scale = parseFloat(scaleRange.value);
   if (!originalImage) return;
 
-  const newWidth = Math.round(originalImage.width * scale);
+  const newWidth  = Math.round(originalImage.width * scale);
   const newHeight = Math.round(originalImage.height * scale);
 
+  // update dimension fields
+  widthInput.value  = newWidth;
+  heightInput.value = newHeight;
+
+  // prepare off-screen canvas
   if (!scaledCanvas) {
     scaledCanvas = document.createElement('canvas');
-    scaledCtx = scaledCanvas.getContext('2d');
+    scaledCtx    = scaledCanvas.getContext('2d');
   }
-  scaledCanvas.width = newWidth;
+  scaledCanvas.width  = newWidth;
   scaledCanvas.height = newHeight;
-
   scaledCtx.clearRect(0, 0, newWidth, newHeight);
-  scaledCtx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height, 0, 0, newWidth, newHeight);
+  scaledCtx.drawImage(
+    originalImage,
+    0, 0,
+    originalImage.width,
+    originalImage.height,
+    0, 0,
+    newWidth,
+    newHeight
+  );
 
-  canvas.width = newWidth;
+  // draw onto main canvas & process
+  canvas.width  = newWidth;
   canvas.height = newHeight;
   ctx.clearRect(0, 0, newWidth, newHeight);
   ctx.drawImage(scaledCanvas, 0, 0);
@@ -476,41 +650,50 @@ function applyScale() {
   processarImagem();
 }
 
+// Core: zoom the processed image into the visible canvas
 function applyPreview() {
   const zoom = parseFloat(zoomRange.value);
-  if (!processedCanvas) return;
+  console.log('applyPreview called', {
+    zoom,
+    hasProcessedCanvas: !!processedCanvas,
+    pcw: processedCanvas?.width,
+    pch: processedCanvas?.height,
+    canvasBefore: { w: canvas.width, h: canvas.height }
+  });
 
-  const previewWidth = Math.round(processedCanvas.width * zoom);
-  const previewHeight = Math.round(processedCanvas.height * zoom);
+  if (!processedCanvas) {
+    console.warn('No processedCanvas, skipping preview');
+    return;
+  }
 
-  canvas.width = previewWidth;
-  canvas.height = previewHeight;
-  ctx.clearRect(0, 0, previewWidth, previewHeight);
+  const pw = Math.round(processedCanvas.width * zoom);
+  const ph = Math.round(processedCanvas.height * zoom);
 
+  canvas.width  = pw;
+  canvas.height = ph;
+  ctx.clearRect(0, 0, pw, ph);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(processedCanvas, 0, 0, processedCanvas.width, processedCanvas.height, 0, 0, previewWidth, previewHeight);
+  ctx.drawImage(
+    processedCanvas,
+    0, 0,
+    processedCanvas.width,
+    processedCanvas.height,
+    0, 0,
+    pw, ph
+  );
   ctx.imageSmoothingEnabled = true;
+
+  console.log('canvas resized to', canvas.width, canvas.height);
 }
 
-scaleRange.addEventListener('change', function () {
+
+// When slider stops (or on change), actually re-scale & re-preview
+scaleRange.addEventListener('change', () => {
   applyScale();
   applyPreview();
 });
 
-upload.addEventListener('change', () => {
-  scaleRange.value = 1.0;
-  scaleValue.textContent = '1.00x';
-  zoomRange.value = 1.0;
-  zoomValue.textContent = '1.00x';
-});
-
-window.addEventListener('beforeunload', () => {
-  scaleRange.value = 1.0;
-  scaleValue.textContent = '1.00x';
-  zoomRange.value = 1.0;
-  zoomValue.textContent = '1.00x';
-});
-
+// Handle image upload & setup
 upload.addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -518,28 +701,34 @@ upload.addEventListener('change', e => {
   reader.onload = evt => {
     const img = new Image();
     img.onload = () => {
-      originalImage = img;
-      canvas.width = img.width;
-      canvas.height = img.height;
+      originalImage   = img;
+      // seed canvas & controls
+      canvas.width    = img.width;
+      canvas.height   = img.height;
       ctx.drawImage(img, 0, 0);
+      scaleRange.value = 1.0;
+      scaleValue.textContent = '1.00x';
+      zoomRange.value  = 1.0;
+      zoomValue.textContent  = '1.00x';
+      initDimensions();
+
       processarImagem();
+
+      applyPreview();
     };
     img.src = evt.target.result;
   };
   reader.readAsDataURL(file);
 });
 
-scaleRange.addEventListener('change', applyScale);
-
-upload.addEventListener('change', () => {
-  scaleRange.value = 1.0;
-  scaleValue.textContent = '1.00x';
-});
-
+// Reset controls on unload (optional)
 window.addEventListener('beforeunload', () => {
   scaleRange.value = 1.0;
   scaleValue.textContent = '1.00x';
+  zoomRange.value  = 1.0;
+  zoomValue.textContent  = '1.00x';
 });
+
 
 document.addEventListener('DOMContentLoaded', function () {
   const buttons = document.querySelectorAll('#colors .toggle-color');
@@ -922,13 +1111,19 @@ function getCurrentLang() {
 }
 
 // Show image info with translation
+// Show image info by updating the width/height inputs and area‐box
 function showImageInfo(width, height) {
   const lang = getCurrentLang();
-  const t = translations[lang];
-  if (!width || !height) return;
-  document.getElementById("width").textContent = `${t.width} ${width} px`;
-  document.getElementById("height").textContent = `${t.height} ${height} px`;
-  document.getElementById("area").textContent = `${t.area} ${width * height} px`;
+  const t    = translations[lang];
+  if (width == null || height == null) return;
+
+  const wIn = document.getElementById("widthInput");
+  const hIn = document.getElementById("heightInput");
+  const aBx = document.getElementById("area");
+
+  if (wIn) wIn.value     = width;
+  if (hIn) hIn.value     = height;
+  if (aBx) aBx.textContent = `${width * height}`;
 }
 
 // Refresh width/height/area display

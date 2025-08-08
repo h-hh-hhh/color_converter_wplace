@@ -14,7 +14,11 @@
 </head>
 
 <body>
-<a class="button" style="position: absolute; left: 10px" target="blank" href="https://github.com/PEPOAFONSO/color_converter_wplace">Github</a>
+<div style="position: absolute; left: 10px; display: flex; flex-direction: column; align-items: center;" target="blank">
+  <a target="_blank"; class="buttonIndex" href="https://wplace.live/">Wplace</a>
+  <a target="_blank"; class="buttonIndex-bottom" href="https://github.com/PEPOAFONSO/color_converter_wplace">Github</a>
+</div>
+
 <div class="lang_select" style="position: absolute; right: 20px;top: 20px;">
   <label for="lang-select">Language:</label>
   <select id="lang-select">
@@ -34,22 +38,33 @@
   </select>
 </div>
 
+<h2 data-i18n="title">Wplace Color Converter</h2>
 
-  <h2 data-i18n="title">Wplace Color Converter</h2>
+<input type="file" id="upload" accept="image/*"><br>
 
-  <input type="file" id="upload" accept="image/*"><br>
+  <canvas id="canvas"></canvas>
 
-  <canvas id="canvas"></canvas><br>
+<div class="dimensions">
+  <div class="dimension-input">
+    <label for="widthInput" data-i18n="width">Width:</label>
+    <input type="number" id="widthInput">
+  </div>
+  <div class="dimension-input">
+    <label for="heightInput" data-i18n="height">Height:</label>
+    <input type="number" id="heightInput">
+  </div>
+  <div class="dimension-input">
+  <label data-i18n="area">Area:</label>
+  <div class="area-box" id="area"></div>
+  </div>
+</div>
 
-  <p class="image-info" id="width"></p>
-  <p class="image-info" id="height"></p>
-  <p class="image-info" id="area"></p>
 
-  <div class="scroll-bar">
-    <label for="scaleRange" data-i18n="scale">Scale: </label>
-    <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
-    <span id="scaleValue">1.00x</span>
-  </div><br>
+<div class="scroll-bar">
+  <label for="scaleRange" data-i18n="scale">Scale: </label>
+  <input type="range" id="scaleRange" min="0.01" max="5" step="0.01" value="1">
+  <span id="scaleValue">1.00x</span>
+</div>
 
   <div class="scroll-bar">
     <label for="zoomRange" data-i18n="zoom">Zoom: </label>
@@ -64,7 +79,6 @@
   <div class="row">
     <a id="download" class="button" href="#" data-i18n="download">Download Image</a>
     <a id="clipboard" class="button" data-i18n="clipboard">Copy to Clipboard</a>
-    <a class="button" target="_blank" href="https://wplace.live/" data-i18n="goto">Go to Wplace</a>
   </div>
 
   <p data-i18n="freeColors">Free Colors:</p>
