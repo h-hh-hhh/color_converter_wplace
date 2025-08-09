@@ -2,7 +2,7 @@
 <div>
   Convert the colors of your image to the available in Wplace.
 </div>
-https://cdn.discordapp.com/attachments/803212832140820554/1403529830791778376/image.png?ex=6897e283&is=68969103&hm=50674fe95b2a86212481653338b77d6d34438691f3eae1668f3ea00821749752&
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/bcbc388b-0ece-4b31-af72-c76b823e402a" />
 <br>
 <h2>Credits:</h2>
 <div>
