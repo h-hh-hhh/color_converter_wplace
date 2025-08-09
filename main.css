@@ -21,6 +21,20 @@ h2#title, h2 {
   text-shadow: 0 2px 12px #222, 0 0px 2px #00eaff;
 }
 
+.license {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 2px 12px #222, 0 0px 2px #00eaff;
+  text-decoration: none
+}
+
+a {/* remove underline */
+  color: #00eaff;
+}
+
+
 input[type="file"] {
   margin: 20px 0;
   padding: 14px 24px;
