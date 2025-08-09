@@ -1221,4 +1221,3 @@ console.log(document.getElementById("meta-og-title"));
   // Call any additional UI update
   showImageInfo(currentImageWidth, currentImageHeight);
 }
-
