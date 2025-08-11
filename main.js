@@ -208,7 +208,7 @@ document.addEventListener('paste', function (event) {
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
-            processarImagem();
+            processarImagemFS();
             showImageInfo(currentImageWidth, currentImageHeight);
           };
           img.src = evt.target.result;
@@ -272,6 +272,85 @@ function processarImagem() {
       colorCounts[key] = (colorCounts[key] || 0) + 1;
     }
   }
+  ctx.putImageData(imgData, 0, 0);
+  downloadLink.href = canvas.toDataURL("image/png");
+  downloadLink.download = `converted_${fileName}`;
+  showImageInfo(canvas.width, canvas.height);
+  showColorUsage(colorCounts);
+
+  if (!processedCanvas) {
+    processedCanvas = document.createElement('canvas');
+    processedCtx = processedCanvas.getContext('2d');
+  }
+  processedCanvas.width = canvas.width;
+  processedCanvas.height = canvas.height;
+  processedCtx.putImageData(imgData, 0, 0);
+}
+
+// Image processing with Floyd-Steinberg Dithering
+function processarImagemFS() {
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imgData.data;
+  const width = canvas.width;
+  const height = canvas.height;
+  const colorCounts = {};
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      const [nr, ng, nb] = corMaisProxima(r, g, b);
+      
+      // Diffusion error
+      const errR = r - nr;
+      const errG = g - ng;
+      const errB = b - nb;
+
+      // Apply the current color
+      data[index] = nr;
+      data[index + 1] = ng;
+      data[index + 2] = nb;
+
+      // Distribute the error using Floyd-Steinberg coefficients
+      // Right pixel
+      if (x + 1 < width) {
+        data[index + 4] += errR * 7 / 16;
+        data[index + 5] += errG * 7 / 16;
+        data[index + 6] += errB * 7 / 16;
+      }
+      // Bottom-left pixel
+      if (x - 1 >= 0 && y + 1 < height) {
+        const idx = index + (width - 1) * 4;
+        data[idx] += errR * 3 / 16;
+        data[idx + 1] += errG * 3 / 16;
+        data[idx + 2] += errB * 3 / 16;
+      }
+      // Bottom pixel
+      if (y + 1 < height) {
+        const idx = index + width * 4;
+        data[idx] += errR * 5 / 16;
+        data[idx + 1] += errG * 5 / 16;
+        data[idx + 2] += errB * 5 / 16;
+      }
+      // Bottom-right pixel
+      if (x + 1 < width && y + 1 < height) {
+        const idx = index + (width + 1) * 4;
+        data[idx] += errR * 1 / 16;
+        data[idx + 1] += errG * 1 / 16;
+        data[idx + 2] += errB * 1 / 16;
+      }
+
+      if (a !== 0) {
+        const key = `${nr},${ng},${nb}`;
+        colorCounts[key] = (colorCounts[key] || 0) + 1;
+      }
+    }
+  }
+
   ctx.putImageData(imgData, 0, 0);
   downloadLink.href = canvas.toDataURL("image/png");
   downloadLink.download = `converted_${fileName}`;
@@ -647,7 +726,7 @@ function applyScale() {
   ctx.clearRect(0, 0, newWidth, newHeight);
   ctx.drawImage(scaledCanvas, 0, 0);
 
-  processarImagem();
+  processarImagemFS();
 }
 
 // Core: zoom the processed image into the visible canvas
@@ -712,7 +791,7 @@ upload.addEventListener('change', e => {
       zoomValue.textContent  = '1.00x';
       initDimensions();
 
-      processarImagem();
+      processarImagemFS();
 
       applyPreview();
     };
@@ -1176,7 +1255,7 @@ upload.addEventListener('change', e => {
       canvas.width = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
-      processarImagem();
+      processarImagemFS();
 
       // Show info for the loaded image
       showImageInfo(currentImageWidth, currentImageHeight);
